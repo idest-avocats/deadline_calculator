@@ -1,7 +1,15 @@
 <!doctype html>
+<!--
+  Calcul des délais (Deadline Calculator), id est avocats
+  Copyright (C) 2026 id est avocats Sàrl
+  SPDX-License-Identifier: AGPL-3.0-or-later
+  Les tableaux et textes juridiques sont en outre mis à disposition sous licence CC BY-NC 4.0.
+  Ce programme est distribué sans aucune garantie. Voir le fichier LICENSE.
+-->
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<script>try { var t = localStorage.getItem('idest-delais:theme'); if (t) { t = JSON.parse(t); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } } catch (e) {}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Outil d’aide au calcul des délais de procédure en droit suisse, id est avocats.">
 <title>Calcul des délais, id est avocats</title>
@@ -14,6 +22,7 @@
   --warn-bg:#FDF1DC; --warn-ink:#7A4D00; --warn-line:#F7A823;
   --bad-bg:#FAE0EB; --bad-ink:#9E0F47; --bad-line:#E61E6E;
   --info-bg:#F2F2F2; --info-ink:#333334; --info-line:#DEDDE1;
+  --nbg:#333334; --legal-bg:#F2F2F2; --caution-bg:#FDF1DC; --caution-ink:#5A3A00; --auto-bg:#E3F3F3;
   --font:Arial,"Helvetica Neue",Helvetica,sans-serif;
   --head:"Grandview","Grandview Display",Arial,"Helvetica Neue",Helvetica,sans-serif;
   box-sizing:border-box;
@@ -27,7 +36,7 @@
     --ok-bg:#0F2E2F; --ok-ink:#8ED9DB; --ok-line:#1F5D5F;
     --warn-bg:#352812; --warn-ink:#FFD58A; --warn-line:#8A6418;
     --bad-bg:#3A1424; --bad-ink:#FFA9CA; --bad-line:#8E1F4C;
-    --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; color-scheme:dark;
+    --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; --nbg:#E61E6E; --legal-bg:#2C2C2E; --caution-bg:#352812; --caution-ink:#FFD58A; --auto-bg:#0F2E2F; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
@@ -35,19 +44,20 @@
   --ok-bg:#0F2E2F; --ok-ink:#8ED9DB; --ok-line:#1F5D5F;
   --warn-bg:#352812; --warn-ink:#FFD58A; --warn-line:#8A6418;
   --bad-bg:#3A1424; --bad-ink:#FFA9CA; --bad-line:#8E1F4C;
-  --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; color-scheme:dark;
+  --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; --nbg:#E61E6E; --legal-bg:#2C2C2E; --caution-bg:#352812; --caution-ink:#FFD58A; --auto-bg:#0F2E2F; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15.5px;line-height:1.5;-webkit-text-size-adjust:100%}
 .topband{height:6px;background:var(--rose)}
 .wrap{max-width:1140px;margin:0 auto;padding:26px 20px 40px}
-header{position:relative;padding-right:24px}
+header{position:relative;padding-right:28px}
 header::after{content:"";position:absolute;right:0;top:4px;width:6px;height:64px;background:var(--orange)}
 .firm{font-weight:700;color:var(--rose);font-size:14px;letter-spacing:.01em}
 h1{font-family:var(--head);font-size:34px;line-height:1.12;font-weight:700;margin:4px 0 0;letter-spacing:-.01em}
 header p{margin:8px 0 0;color:var(--muted);max-width:72ch}
-.caution{margin-top:16px;background:var(--cream);color:#5A3A00;border-left:5px solid var(--orange);border-radius:6px;padding:11px 14px;font-size:14.5px;max-width:84ch}
+.caution{margin-top:16px;background:var(--caution-bg);color:var(--caution-ink);border-left:5px solid var(--orange);border-radius:6px;padding:11px 14px;font-size:14.5px;max-width:84ch}
 .caution b{font-weight:700}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);gap:22px;margin-top:22px;align-items:start}
 @media (max-width:920px){.grid{grid-template-columns:1fr}}
@@ -57,8 +67,7 @@ header p{margin:8px 0 0;color:var(--muted);max-width:72ch}
 fieldset{border:0;margin:0 0 20px;padding:0}
 fieldset:last-of-type{margin-bottom:0}
 legend{font-family:var(--head);font-weight:700;font-size:17px;margin-bottom:8px;padding:0;display:flex;gap:10px;align-items:center}
-legend .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--anthra);color:#fff;font-size:13px;font-family:var(--font)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) legend .n{background:var(--rose)}}
+legend .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--nbg);color:#fff;font-size:13px;font-family:var(--font)}
 label{display:block;font-weight:700;font-size:14px;margin:12px 0 5px}
 .hint{font-size:13px;color:var(--muted);margin-top:5px}
 select,input[type=date],input[type=number]{width:100%;font:inherit;font-size:15.5px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:10px 11px;min-height:44px}
@@ -74,8 +83,15 @@ select:focus,input:focus,button:focus-visible,summary:focus-visible{outline:3px 
 .sub{margin-left:27px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:14px 0 2px}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-.legal{margin-top:10px;font-size:13.5px;color:var(--muted);background:var(--lgrey);border-radius:6px;padding:9px 11px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .legal{background:#2C2C2E}}
+.legal{margin-top:10px;font-size:13.5px;color:var(--muted);background:var(--legal-bg);border-radius:6px;padding:9px 11px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.legal.ok{background:var(--ok-bg);color:var(--ok-ink)} .legal.warn{background:var(--warn-bg);color:var(--warn-ink)}
+input.auto{background:var(--auto-bg);font-weight:700}
+.opt{font-weight:400;color:var(--muted);font-size:13px}
+.headrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.theme{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.theme button{font:inherit;font-size:12.5px;font-weight:700;color:var(--muted);background:transparent;border:0;padding:5px 11px;cursor:pointer}
+.theme button[aria-pressed="true"]{background:var(--anthra);color:#fff}
+.beta{display:inline-block;vertical-align:middle;margin-left:10px;font-family:var(--font);font-size:12px;font-weight:700;color:var(--rose);border:1.5px solid var(--rose);border-radius:999px;padding:1px 8px;letter-spacing:.02em}
 .legal b{color:var(--ink)}
 .linkish{font:inherit;font-size:13.5px;font-weight:700;color:var(--rose);background:none;border:0;padding:3px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 
@@ -116,6 +132,7 @@ footer p{margin:6px 0}
 details{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
 summary{cursor:pointer;font-weight:700;color:var(--ink)}
 details p{color:var(--ink);font-size:13.5px}
+footer a{color:var(--rose)}
 .bottomband{background:var(--rose);color:#fff;font-size:13px;margin-top:26px}
 .bottomband .wrap{padding-top:12px;padding-bottom:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -127,8 +144,13 @@ details p{color:var(--ink);font-size:13.5px}
 <div class="topband" aria-hidden="true"></div>
 <div class="wrap">
   <header>
-    <div class="firm">id est avocats</div>
-    <h1>Calcul des délais</h1>
+    <div class="headrow">
+      <div class="firm">id est avocats</div>
+      <div class="theme" role="group" aria-label="Affichage">
+        <button type="button" data-theme-set="auto">Auto</button><button type="button" data-theme-set="light">Clair</button><button type="button" data-theme-set="dark">Sombre</button>
+      </div>
+    </div>
+    <h1>Calcul des délais<span class="beta">beta</span></h1>
     <p>Procédure civile, poursuite et faillite, procédure pénale, Tribunal fédéral, procédure administrative fédérale et des cantons romands, assurances sociales, marchés publics.</p>
     <div class="caution" role="note"><b>Aide au calcul uniquement.</b> Vérifiez toujours vous-même le délai applicable : base légale, loi spéciale éventuelle, date et mode de notification, jours fériés reconnus. Testez l’outil sur des cas connus avant de vous y fier. Voir l’avertissement complet en bas de page.</div>
   </header>
@@ -147,7 +169,10 @@ details p{color:var(--ink);font-size:13.5px}
           <label for="avis">Date du premier avis de retrait</label>
           <input id="avis" type="date">
         </div>
-        <label class="check" id="normalBox"><input type="checkbox" id="normal"> Envoi postal normal, sans signature</label>
+        <div id="normalBox" hidden>
+          <label class="check"><input type="checkbox" id="normal"> L’acte est arrivé par courrier A-Post Plus (sans signature)</label>
+          <div class="hint sub" id="normalHint">La date indiquée est un samedi, un dimanche ou un jour férié. Un envoi A-Post Plus reçu ce jour-là est réputé notifié le premier jour ouvrable suivant, lorsque la loi le prévoit (par exemple art. 142 al. 1bis CPC).</div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -171,15 +196,15 @@ details p{color:var(--ink);font-size:13.5px}
       </fieldset>
 
       <fieldset>
-        <legend><span class="n">4</span>Acte ou délai</legend>
-        <label for="act">Acte ou procédure</label>
-        <select id="act"></select>
-        <div class="hint" id="actNote"></div>
-        <div class="or">et/ou</div>
+        <legend><span class="n">4</span>Délai et acte</legend>
         <div class="row">
-          <div><label for="n">Délai</label><input id="n" type="number" min="1" max="3650" inputmode="numeric" placeholder="ex. 30"></div>
+          <div><label for="n">Délai <span class="opt">(facultatif)</span></label><input id="n" type="number" min="1" max="3650" inputmode="numeric" placeholder="ex. 30"></div>
           <div><label for="unit">Unité</label><select id="unit"><option value="j">jours</option><option value="m">mois</option></select></div>
         </div>
+        <div class="hint" id="nHint">Laissez vide si vous choisissez l’acte : le délai légal s’affichera automatiquement.</div>
+        <label for="act">Acte ou procédure <span class="opt">(facultatif)</span></label>
+        <select id="act"></select>
+        <div class="hint" id="actNote"></div>
         <div id="regBox">
           <label for="reg">Suspension des délais (féries)</label>
           <select id="reg"></select>
@@ -217,13 +242,14 @@ details p{color:var(--ink);font-size:13.5px}
     <div class="inner">
       <details id="disclaimer">
         <summary>Avertissement</summary>
-        <p>Cet outil est mis à disposition par id est avocats Sàrl à titre d’aide au calcul. Il ne constitue pas un conseil juridique et son utilisation ne crée aucune relation de mandat avec l’étude.</p>
+        <p>Cet outil est mis à disposition gratuitement par id est avocats Sàrl à titre d’aide au calcul. Il ne constitue pas un conseil juridique et son utilisation ne crée aucune relation de mandat avec l’étude.</p>
+        <p>L’outil est en phase de test (beta) et peut contenir des erreurs. Les textes légaux ont été consultés aux dates indiquées ci-dessous ; ils peuvent avoir été modifiés depuis.</p>
         <p>Les résultats sont indicatifs. Ils dépendent des informations saisies et de règles simplifiées (jours fériés retenus, régime des féries, règles de notification). L’utilisateur doit vérifier lui-même chaque délai au regard de la loi applicable, de la jurisprudence, de l’indication des voies de droit et des circonstances du cas.</p>
-        <p>Les textes légaux ont été consultés aux dates indiquées ci-dessous ; ils peuvent avoir été modifiés depuis. En cas de doute sur le caractère férié d’un jour, l’outil ne le retient pas, ce qui conduit à une échéance plus précoce.</p>
-        <p>Dans les limites autorisées par la loi, id est avocats Sàrl décline toute responsabilité pour les conséquences de l’utilisation de l’outil, notamment en cas de délai manqué. La responsabilité pour dol ou faute grave demeure réservée (art. 100 CO).</p>
-        <p>Aucune donnée saisie n’est transmise : les calculs sont effectués dans le navigateur. Seuls le type de procédure et le canton choisis sont mémorisés localement sur l’appareil, pour la prochaine utilisation.</p>
+        <p>Dans toute la mesure autorisée, id est avocats Sàrl décline toute responsabilité pour les conséquences de l’utilisation de l’outil, notamment en cas de délai manqué.</p>
+        <p>id est avocats ne collecte aucune donnée dans le cadre de l’utilisation de l’outil : les calculs sont effectués dans le navigateur. Seuls le type de procédure et le canton choisis sont mémorisés localement sur l’appareil, pour la prochaine utilisation. L’outil est hébergé sur le site GitHub, qui peut collecter certaines informations, notamment au moyen de cookies, conformément à sa propre déclaration relative à la protection des données.</p>
       </details>
-      <p><b>Sources consultées :</b> CPC (état au 1er juillet 2026), LP (1er janvier 2026), CPP (1er avril 2025), LTF (1er avril 2026), PA (1er juillet 2022), LMP (1er janvier 2026) ; LPA-VD (BLV 173.36), AIMP 2019 (BLV 726.91) et LMP-VD ; LPA-GE (rsGE E 5 10), AIMP 1994/2001 et L-AIMP (rsGE L 6 05 et L 6 05.0) ; CPJA (RSF 150.1), LJ (RSF 130.1), AIMP 2019 (RSF 122.91.3) et LCMP (RSF 122.91.1) ; LPA-NE du 18 mars 2025 (RSN 152.130), règlement des fonctionnaires (RSN 152.512), AIMP 2019 (RSN 601.710) ; LPJA (RS/VS 172.6), règlement sur le repos du dimanche et des jours de fête (RS/VS 822.200), AIMP 2019 (RS/VS 726.1-1) ; Cpa (RSJU 175.1), loi sur les jours fériés officiels (RSJU 555.1), AIMP 2019 (RSJU 174.01) ; LPGA (1er janvier 2024) ; loi vaudoise sur l’emploi (art. 47), loi genevoise sur les jours fériés (rsGE J 1 45), loi neuchâteloise sur le dimanche et les jours fériés (RSN 941.02) ; projet de loi genevois PL 13620 ; ATF 138 III 615, ATF 139 III 78, TF 5A_691/2023 du 13 août 2024, TF 5A_989/2025 du 27 mars 2026. Version 1.1, octobre 2026.</p>
+      <p><b>Licence :</b> code sous licence <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL 3.0</a> ou version ultérieure ; tableaux et textes juridiques sous licence <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.fr">CC BY-NC 4.0</a> (attribution : id est avocats Sàrl). <span id="srcLink"></span></p>
+      <p><b>Sources consultées :</b> CPC (état au 1er juillet 2026), LP (1er janvier 2026), CPP (1er avril 2025), LTF (1er avril 2026), PA (1er juillet 2022), LMP (1er janvier 2026) ; LPA-VD (BLV 173.36), AIMP 2019 (BLV 726.91) et LMP-VD ; LPA-GE (rsGE E 5 10), AIMP 1994/2001 et L-AIMP (rsGE L 6 05 et L 6 05.0) ; CPJA (RSF 150.1), LJ (RSF 130.1), AIMP 2019 (RSF 122.91.3) et LCMP (RSF 122.91.1) ; LPA-NE du 18 mars 2025 (RSN 152.130), règlement des fonctionnaires (RSN 152.512), AIMP 2019 (RSN 601.710) ; LPJA (RS/VS 172.6), règlement sur le repos du dimanche et des jours de fête (RS/VS 822.200), AIMP 2019 (RS/VS 726.1-1) ; Cpa (RSJU 175.1), loi sur les jours fériés officiels (RSJU 555.1), AIMP 2019 (RSJU 174.01) ; LPGA (1er janvier 2024) ; loi vaudoise sur l’emploi (art. 47), loi genevoise sur les jours fériés (rsGE J 1 45), loi neuchâteloise sur le dimanche et les jours fériés (RSN 941.02) ; projet de loi genevois PL 13620 ; ATF 138 III 615, ATF 139 III 78, TF 5A_691/2023 du 13 août 2024, TF 5A_989/2025 du 27 mars 2026. Version 1.2 (beta), octobre 2026.</p>
     </div>
   </footer>
 </div>
@@ -609,6 +635,7 @@ function renderActs() {
   sel.innerHTML = `<option value="">Aucun : je saisis le délai moi-même</option>` + list.map(a => `<option value="${a.id}">${a.label} (${a.n} ${a.unit === 'm' ? 'mois' : 'jours'})</option>`).join('');
   sel.value = list.some(a => a.id === prev) ? prev : '';
   renderRegimes();
+  syncAuto();
   update();
 }
 function renderRegimes() {
@@ -625,11 +652,25 @@ function holidayList() {
   return (D.HOLI_SETS[set] || D.HOLI_SETS.XX).map(k => HOLI_LABEL[k]).join(', ');
 }
 
+let autoN = false; // le champ « Délai » a-t-il été rempli automatiquement ?
+function syncAuto() {
+  const a = actById($('#act').value) || null;
+  const empty = $('#n').value.trim() === '';
+  if (a && (empty || autoN)) { $('#n').value = a.n; $('#unit').value = a.unit; autoN = true; }
+  else if (!a && autoN) { $('#n').value = ''; autoN = false; }
+}
+function isNonWorking(d) {
+  if (d === null) return false;
+  const w = D.ymd(d).dow;
+  return w === 0 || w === 6 || !!D.holidays(holiSet(), D.ymd(d).y).get(d);
+}
 function update() {
   const a = actById($('#act').value) || null;
   const nRaw = $('#n').value.trim();
-  let n = parseInt(nRaw, 10); const typed = Number.isFinite(n) && n >= 1;
-  let unit = $('#unit').value;
+  const n = parseInt(nRaw, 10); const typed = Number.isFinite(n) && n >= 1;
+  const unit = $('#unit').value;
+  $('#n').classList.toggle('auto', autoN && typed);
+  $('#nHint').textContent = autoN && a ? `Délai légal rempli automatiquement (${a.ref}). Vous pouvez le modifier.` : 'Laissez vide si vous choisissez l’acte : le délai légal s’affichera automatiquement.';
   const regKey0 = a ? a.reg : $('#reg').value;
   $('#noticeBox').hidden = regKey0 !== 'CPCS';
   const noNotice = regKey0 === 'CPCS' && !$('#notice145').checked;
@@ -639,41 +680,44 @@ function update() {
   const ev = D.parseISO($('#ev').value), avis = D.parseISO($('#avis').value);
   store.set('canton', canton());
   $('#avisBox').hidden = mode !== 'fiction';
-  $('#normalBox').hidden = mode === 'fiction';
+  const showNormal = mode !== 'fiction' && isNonWorking(ev);
+  $('#normalBox').hidden = !showNormal;
+  if (!showNormal) $('#normal').checked = false;
   $('#ev').disabled = mode === 'fiction';
   $('#evLabel').textContent = a && a.start ? a.start : 'Date de la communication ou de l’événement';
   $('#regBox').hidden = !!a;
   $('#actNote').textContent = a && a.note ? a.note : '';
 
-  // Délai retenu
-  let usedLegal = false;
-  if (a && !typed) { n = a.n; unit = a.unit; usedLegal = true; }
+  // Contrôle de compatibilité entre délai et acte
   const noFer = (a && a.noFer) || reg.noFerRef;
   const ferTxt = reg.feries === 'LP' ? 'art. 63 LP en cas d’échéance pendant les féries de poursuite' : reg.feries ? `féries : oui (${(a && a.ferRefOverride) || reg.ferRef})` : `féries : non${noFer ? ' (' + noFer + ')' : ''}`;
-  if (a) {
-    const differs = typed && (n !== a.n || unit !== a.unit);
-    $('#legal').innerHTML = `<span>Délai légal : <b>${a.n} ${unitTxt(a.unit)}</b>, ${a.ref} ; ${ferTxt}.${usedLegal ? ' Appliqué automatiquement, le champ « Délai » étant vide.' : ''}</span>${differs ? `<button type="button" class="linkish" id="restore">Reprendre ${a.n} ${unitTxt(a.unit)}</button>` : ''}`;
-    const rb = $('#restore'); if (rb) rb.onclick = () => { $('#n').value = ''; $('#unit').value = a.unit; update(); };
+  const legal = $('#legal');
+  const differs = a && typed && (n !== a.n || unit !== a.unit);
+  legal.className = 'legal' + (a && typed ? (differs ? ' warn' : ' ok') : '');
+  if (a && typed && !autoN) {
+    legal.innerHTML = differs
+      ? `<span><b>Délai et acte incompatibles.</b> Délai légal : ${a.n} ${unitTxt(a.unit)} (${a.ref}) ; ${ferTxt}.</span><button type="button" class="linkish" id="restore">Reprendre ${a.n} ${unitTxt(a.unit)}</button>`
+      : `<span><b>Délai et acte compatibles.</b> ${a.n} ${unitTxt(a.unit)} (${a.ref}) ; ${ferTxt}.</span>`;
+  } else if (a) {
+    legal.innerHTML = `<span>Délai légal : <b>${a.n} ${unitTxt(a.unit)}</b>, ${a.ref} ; ${ferTxt}.</span>`;
   } else {
-    $('#legal').innerHTML = `<span>Sans acte choisi, le délai saisi est calculé tel quel, sans contrôle ; ${ferTxt}.</span>`;
+    legal.innerHTML = typed ? `<span>Sans acte choisi, le délai saisi est calculé tel quel, sans contrôle ; ${ferTxt}.</span>` : `<span>Indiquez le délai, l’acte, ou les deux pour un contrôle.</span>`;
   }
+  const rb = $('#restore'); if (rb) rb.onclick = () => { $('#n').value = a.n; $('#unit').value = a.unit; autoN = true; update(); };
 
   const alerts = [];
-  if (a && typed) {
-    if (n !== a.n || unit !== a.unit) {
-      alerts.push({ lvl: 'warn', html: `<b>Attention, à vérifier.</b> Pour « ${a.label} », le délai légal est de <b>${a.n} ${unitTxt(a.unit)}</b> (${a.ref}). Vous avez saisi ${n} ${unitTxt(unit)}. Le calcul utilise votre valeur. <button type="button" class="linkish" data-fix>Reprendre ${a.n} ${unitTxt(a.unit)}</button>` });
-    } else alerts.push({ lvl: 'ok', html: `<b>Délai conforme.</b> Le délai saisi correspond au délai légal (${a.ref}).` });
-  }
-  if (a && !typed) alerts.push({ lvl: 'info', html: `Délai légal appliqué : ${a.n} ${unitTxt(a.unit)} (${a.ref}).` });
+  if (differs) alerts.push({ lvl: 'warn', html: `<b>Attention, à vérifier.</b> Pour « ${a.label} », le délai légal est de <b>${a.n} ${unitTxt(a.unit)}</b> (${a.ref}). Vous avez saisi ${n} ${unitTxt(unit)}. Le calcul utilise votre valeur. <button type="button" class="linkish" data-fix>Reprendre ${a.n} ${unitTxt(a.unit)}</button>` });
+  else if (a && typed && !autoN) alerts.push({ lvl: 'ok', html: `<b>Délai conforme.</b> Le délai saisi correspond au délai légal (${a.ref}).` });
+  else if (a && typed && autoN) alerts.push({ lvl: 'info', html: `Délai légal appliqué : ${a.n} ${unitTxt(a.unit)} (${a.ref}).` });
   if (!a && typed) alerts.push({ lvl: 'info', html: 'Aucun acte choisi : le délai n’est pas contrôlé. Choisissez l’acte pour le vérifier.' });
   if (reg.daysOnly && unit === 'm' && reg.feries) alerts.push({ lvl: 'info', html: `La suspension ne vise que les délais fixés en jours (${reg.ferRef}) : elle n’est pas appliquée à un délai en mois.` });
   if (regKey === 'CPP' && unit === 'm') alerts.push({ lvl: 'info', html: 'Le CPP règle la computation des délais fixés en jours (art. 90 CPP). Vérifiez la base légale d’un délai en mois.' });
   if (noNotice) alerts.push({ lvl: 'info', html: 'Sans l’avertissement prévu à l’art. 145 al. 3 CPC, les délais sont suspendus (ATF 139 III 78) : le calcul applique la suspension.' });
-  if ($('#normal').checked && mode !== 'fiction' && !reg.normalPostRule && reg.postNote) alerts.push({ lvl: 'info', html: reg.postNote });
+  if ($('#normal').checked && !reg.normalPostRule && reg.postNote) alerts.push({ lvl: 'info', html: reg.postNote });
   if (canton() === 'XX') alerts.push({ lvl: 'warn', html: 'Autre canton : seuls le 1er janvier, l’Ascension, le 1er août et Noël sont retenus comme jours fériés. Vérifiez les jours fériés du canton concerné.' });
 
   const startDate = mode === 'fiction' ? avis : ev;
-  if (!a && !typed) return show(null, alerts, a, reg, 'Choisissez l’acte ou indiquez le délai.');
+  if (!typed) return show(null, alerts, a, reg, 'Indiquez le délai ou choisissez l’acte.');
   if (startDate === null) return show(null, alerts, a, reg, mode === 'fiction' ? 'Indiquez la date du premier avis de retrait.' : 'Indiquez la date de la communication.');
 
   const res = D.compute({
@@ -694,7 +738,7 @@ function show(res, alerts, a, reg, emptyMsg, today, n, unit) {
   let html = alerts.map(x => `<div class="alert ${x.lvl}">${x.html}</div>`).join('');
   if (res && res.end - today < 0) html = `<div class="alert bad"><b>Le délai paraît échu.</b> Vérifiez la date de notification et une éventuelle restitution de délai.</div>` + html;
   $('#rAlerts').innerHTML = html;
-  const fix = document.querySelector('[data-fix]'); if (fix) fix.onclick = () => { $('#n').value = ''; if (a) $('#unit').value = a.unit; update(); };
+  const fix = document.querySelector('[data-fix]'); if (fix) fix.onclick = () => { $('#n').value = a.n; $('#unit').value = a.unit; autoN = true; update(); };
   if (!res) {
     dEl.className = 'date empty'; dEl.textContent = emptyMsg || 'Complétez le formulaire.'; chip.innerHTML = '';
     $('#rTl').hidden = true; $('#rDetails').hidden = true; lastSummary = ''; return;
@@ -740,10 +784,12 @@ function show(res, alerts, a, reg, emptyMsg, today, n, unit) {
 }
 
 // ---------- Événements ----------
-$('#n').addEventListener('input', update);
-['#unit', '#ev', '#avis', '#normal', '#reg', '#notice145'].forEach(s => { $(s).addEventListener('input', update); $(s).addEventListener('change', update); });
+$('#n').addEventListener('input', () => { autoN = false; update(); });
+$('#n').addEventListener('blur', () => { if ($('#n').value.trim() === '' && $('#act').value) { syncAuto(); update(); } });
+$('#unit').addEventListener('change', () => { autoN = false; update(); });
+['#ev', '#avis', '#normal', '#reg', '#notice145'].forEach(s => { $(s).addEventListener('input', update); $(s).addEventListener('change', update); });
 document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', update));
-$('#act').addEventListener('change', () => { const a = actById($('#act').value); if (a && !$('#n').value) $('#unit').value = a.unit; update(); });
+$('#act').addEventListener('change', () => { syncAuto(); update(); });
 $('#canton').addEventListener('change', () => { renderActs(); });
 $('#copy').addEventListener('click', async () => {
   const b = $('#copy');
@@ -758,9 +804,27 @@ $('#copy').addEventListener('click', async () => {
 });
 $('#print').addEventListener('click', () => window.print());
 $('#reset').addEventListener('click', () => {
-  $('#ev').value = ''; $('#avis').value = ''; $('#n').value = ''; $('#normal').checked = false;
+  $('#ev').value = ''; $('#avis').value = ''; $('#n').value = ''; autoN = false; $('#normal').checked = false;
   document.querySelector('input[name=mode][value=recu]').checked = true; $('#act').value = ''; update();
 });
+
+// ---------- Affichage clair ou sombre ----------
+function applyTheme(t) {
+  if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+  document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === (t || 'auto'))));
+}
+document.querySelectorAll('[data-theme-set]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.themeSet; store.set('theme', t); applyTheme(t); }));
+applyTheme(store.get('theme', 'auto'));
+
+// Lien vers le code source (art. 13 AGPL), lorsque l’outil est servi par GitHub Pages
+(() => {
+  const h = location.hostname;
+  if (/\.github\.io$/.test(h)) {
+    const user = h.split('.')[0], repo = location.pathname.split('/').filter(Boolean)[0];
+    const url = `https://github.com/${user}${repo ? '/' + repo : ''}`;
+    $('#srcLink').innerHTML = `Code source : <a href="${url}">${url.replace('https://', '')}</a>.`;
+  }
+})();
 
 // ---------- Démarrage ----------
 $('#canton').value = store.get('canton', 'VD');

@@ -1,6 +1,6 @@
 # Cas de test
 
-Cas calculés à la main et vérifiés avec l’outil (version 1.1). À refaire après chaque modification de l’outil ou du droit.
+Cas calculés à la main et vérifiés avec l’outil (version 1.2). À refaire après chaque modification de l’outil ou du droit.
 
 | # | Procédure et canton | Acte ou délai | Communication | Dernier jour attendu | Point contrôlé |
 |---|---|---|---|---|---|
@@ -33,3 +33,5 @@ Cas calculés à la main et vérifiés avec l’outil (version 1.1). À refaire 
 | 27 | CPC, Neuchâtel | 10 jours, sans suspension | 21.04.2026 | lundi 04.05.2026 | 1er mai férié (RSN 941.02) |
 | 28 | CPC, Neuchâtel | 10 jours, sans suspension | 27.03.2026 | lundi 06.04.2026 | lundi de Pâques non férié |
 | 29 | CPC, Neuchâtel | 10 jours, sans suspension | 16.12.2022 | mardi 27.12.2022 | 26 décembre férié lorsque Noël est un dimanche |
+
+© 2026 id est avocats Sàrl, sous licence [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.fr).

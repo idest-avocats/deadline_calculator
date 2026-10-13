@@ -1,6 +1,8 @@
 # Sources et règles appliquées
 
-Version 1.1. État du droit consulté en octobre 2026 : CPC (état au 1er juillet 2026), LP (1er janvier 2026), CPP (1er avril 2025), LTF (1er avril 2026), PA (1er juillet 2022), LMP (1er janvier 2026), LPGA (1er janvier 2024), ainsi que les recueils cantonaux cités ci-dessous (versions en ligne en octobre 2026).
+Version 1.2 (beta). © 2026 id est avocats Sàrl ; tableaux et textes sous licence [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/deed.fr).
+
+État du droit consulté en octobre 2026 : CPC (état au 1er juillet 2026), LP (1er janvier 2026), CPP (1er avril 2025), LTF (1er avril 2026), PA (1er juillet 2022), LMP (1er janvier 2026), LPGA (1er janvier 2024), ainsi que les recueils cantonaux cités ci-dessous (versions en ligne en octobre 2026).
 
 ## Actes et délais
 

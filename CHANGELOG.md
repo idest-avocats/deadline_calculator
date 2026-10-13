@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 1.2.0 (beta) – octobre 2026
+
+- Licence : code sous AGPL-3.0-or-later ; tableaux et textes juridiques également sous CC BY-NC 4.0. En-tête SPDX dans `index.html` et lien vers le code source lorsque l’outil est servi par GitHub Pages.
+- Étape 4 : le délai vient en premier et peut rester vide ; si un acte est choisi, le champ se remplit automatiquement avec le délai légal ; si les deux sont renseignés, l’outil indique s’ils sont compatibles.
+- Case A-Post Plus : affichée seulement lorsque la date de communication tombe un samedi, un dimanche ou un jour férié, avec une explication.
+- Choix de l’affichage : automatique, clair ou sombre.
+- Nouvel avertissement (outil gratuit, version beta, collecte de données).
+- Correction : la case de l’art. 145 al. 3 CPC restait visible pour les procédures où elle ne s’applique pas.
+
 ## 1.1.0 – octobre 2026
 
 Vérification juridique complète (droit fédéral, cantons romands, jurisprudence) et corrections.
