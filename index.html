@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Outil d’aide au calcul des délais de procédure en droit suisse, id est avocats.">
+<title>Calcul des délais, id est avocats</title>
+<style>
+:root{
+  --rose:#E61E6E; --anthra:#333334; --turq:#069297; --orange:#F7A823; --cream:#FDF1DC; --lrose:#FAE0EB; --lgrey:#F2F2F2;
+  --bg:#F2F2F2; --panel:#FFFFFF; --ink:#333334; --muted:#68686C; --line:#DEDDE1; --field:#FFFFFF;
+  --date:#C8155C;
+  --ok-bg:#E3F3F3; --ok-ink:#05666A; --ok-line:#9ED3D4;
+  --warn-bg:#FDF1DC; --warn-ink:#7A4D00; --warn-line:#F7A823;
+  --bad-bg:#FAE0EB; --bad-ink:#9E0F47; --bad-line:#E61E6E;
+  --info-bg:#F2F2F2; --info-ink:#333334; --info-line:#DEDDE1;
+  --font:Arial,"Helvetica Neue",Helvetica,sans-serif;
+  --head:"Grandview","Grandview Display",Arial,"Helvetica Neue",Helvetica,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B1B1C; --panel:#252526; --ink:#F2F2F2; --muted:#B3B3B8; --line:#3A3A3D; --field:#1F1F20; --date:#FF6FA5;
+    --ok-bg:#0F2E2F; --ok-ink:#8ED9DB; --ok-line:#1F5D5F;
+    --warn-bg:#352812; --warn-ink:#FFD58A; --warn-line:#8A6418;
+    --bad-bg:#3A1424; --bad-ink:#FFA9CA; --bad-line:#8E1F4C;
+    --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1B1B1C; --panel:#252526; --ink:#F2F2F2; --muted:#B3B3B8; --line:#3A3A3D; --field:#1F1F20; --date:#FF6FA5;
+  --ok-bg:#0F2E2F; --ok-ink:#8ED9DB; --ok-line:#1F5D5F;
+  --warn-bg:#352812; --warn-ink:#FFD58A; --warn-line:#8A6418;
+  --bad-bg:#3A1424; --bad-ink:#FFA9CA; --bad-line:#8E1F4C;
+  --info-bg:#2C2C2E; --info-ink:#E6E6E8; --info-line:#3A3A3D; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15.5px;line-height:1.5;-webkit-text-size-adjust:100%}
+.topband{height:6px;background:var(--rose)}
+.wrap{max-width:1140px;margin:0 auto;padding:26px 20px 40px}
+header{position:relative;padding-right:24px}
+header::after{content:"";position:absolute;right:0;top:4px;width:6px;height:64px;background:var(--orange)}
+.firm{font-weight:700;color:var(--rose);font-size:14px;letter-spacing:.01em}
+h1{font-family:var(--head);font-size:34px;line-height:1.12;font-weight:700;margin:4px 0 0;letter-spacing:-.01em}
+header p{margin:8px 0 0;color:var(--muted);max-width:72ch}
+.caution{margin-top:16px;background:var(--cream);color:#5A3A00;border-left:5px solid var(--orange);border-radius:6px;padding:11px 14px;font-size:14.5px;max-width:84ch}
+.caution b{font-weight:700}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.02fr);gap:22px;margin-top:22px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--rose);border-radius:8px;padding:20px}
+.result{position:sticky;top:16px;border-top-color:var(--turq)}
+@media (max-width:920px){.result{position:static}}
+fieldset{border:0;margin:0 0 20px;padding:0}
+fieldset:last-of-type{margin-bottom:0}
+legend{font-family:var(--head);font-weight:700;font-size:17px;margin-bottom:8px;padding:0;display:flex;gap:10px;align-items:center}
+legend .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--anthra);color:#fff;font-size:13px;font-family:var(--font)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) legend .n{background:var(--rose)}}
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 5px}
+.hint{font-size:13px;color:var(--muted);margin-top:5px}
+select,input[type=date],input[type=number]{width:100%;font:inherit;font-size:15.5px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:10px 11px;min-height:44px}
+select:focus,input:focus,button:focus-visible,summary:focus-visible{outline:3px solid color-mix(in srgb,var(--rose) 40%,transparent);outline-offset:1px;border-color:var(--rose)}
+.row{display:grid;grid-template-columns:1fr 140px;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:#fff}
+.radios{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.radios label,.check{display:flex;gap:9px;align-items:flex-start;font-weight:400;margin:0;font-size:14.5px;cursor:pointer}
+.radios input,.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--rose);flex:none}
+.check{margin-top:10px}
+.sub{margin-left:27px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin:14px 0 2px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.legal{margin-top:10px;font-size:13.5px;color:var(--muted);background:var(--lgrey);border-radius:6px;padding:9px 11px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .legal{background:#2C2C2E}}
+.legal b{color:var(--ink)}
+.linkish{font:inherit;font-size:13.5px;font-weight:700;color:var(--rose);background:none;border:0;padding:3px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+
+.r-label{font-size:14px;color:var(--muted);font-weight:700}
+.date{font-family:var(--head);font-size:clamp(26px,4vw,38px);line-height:1.12;font-weight:700;color:var(--date);margin:4px 0 8px}
+.date.empty{color:var(--muted);font-weight:400;font-size:19px;font-family:var(--font)}
+.chip{display:inline-block;font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px}
+.chip.ok{background:var(--ok-bg);color:var(--ok-ink)} .chip.soon{background:var(--warn-bg);color:var(--warn-ink)} .chip.late{background:var(--bad-bg);color:var(--bad-ink)}
+.alerts{display:flex;flex-direction:column;gap:8px;margin:14px 0 0}
+.alert{border-radius:6px;padding:10px 12px;font-size:14.5px;border:1px solid;border-left-width:5px}
+.alert.ok{background:var(--ok-bg);color:var(--ok-ink);border-color:var(--ok-line);border-left-color:var(--turq)}
+.alert.warn{background:var(--warn-bg);color:var(--warn-ink);border-color:var(--warn-line)}
+.alert.bad{background:var(--bad-bg);color:var(--bad-ink);border-color:var(--bad-line)}
+.alert.info{background:var(--info-bg);color:var(--info-ink);border-color:var(--info-line)}
+.alert b{font-weight:700}
+.alert .linkish{color:inherit;padding:0;margin-left:4px}
+.tl{margin-top:18px}
+.bar{display:flex;height:14px;border-radius:4px;overflow:hidden;background:var(--line)}
+.bar span{display:block;height:100%}
+.bar .c{background:var(--turq)}
+.bar .s{background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 6px);opacity:.6}
+.bar .x{background:var(--orange)}
+.tl-ends{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:5px}
+.legendrow{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legendrow i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-2px}
+h2{font-family:var(--head);font-size:16.5px;margin:20px 0 6px}
+ol.steps{margin:0;padding-left:22px}
+ol.steps li{margin:5px 0;font-size:14.5px}
+.ref{color:var(--muted);font-size:13px}
+ul.rules{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+ul.rules li{margin:4px 0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{font:inherit;font-weight:700;font-size:14.5px;border-radius:6px;padding:10px 16px;cursor:pointer;border:1px solid var(--rose);background:var(--rose);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+footer{margin-top:30px;color:var(--muted);font-size:13px}
+footer .inner{max-width:92ch}
+footer p{margin:6px 0}
+details{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+summary{cursor:pointer;font-weight:700;color:var(--ink)}
+details p{color:var(--ink);font-size:13.5px}
+.bottomband{background:var(--rose);color:#fff;font-size:13px;margin-top:26px}
+.bottomband .wrap{padding-top:12px;padding-bottom:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:520px){h1{font-size:28px}.row{grid-template-columns:1fr 112px}.panel{padding:16px}header::after{height:48px}}
+@media print{.topband,.bottomband,.caution,form,.actions,details{display:none!important}.grid{display:block}.panel{border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="topband" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <div class="firm">id est avocats</div>
+    <h1>Calcul des délais</h1>
+    <p>Procédure civile, poursuite et faillite, procédure pénale, Tribunal fédéral, procédure administrative fédérale et des cantons romands, assurances sociales, marchés publics.</p>
+    <div class="caution" role="note"><b>Aide au calcul uniquement.</b> Vérifiez toujours vous-même le délai applicable : base légale, loi spéciale éventuelle, date et mode de notification, jours fériés reconnus. Testez l’outil sur des cas connus avant de vous y fier. Voir l’avertissement complet en bas de page.</div>
+  </header>
+
+  <div class="grid">
+    <form class="panel" id="form" autocomplete="off" onsubmit="return false">
+      <fieldset>
+        <legend><span class="n">1</span>Point de départ</legend>
+        <label for="ev" id="evLabel">Date de la communication ou de l’événement</label>
+        <input id="ev" type="date">
+        <div class="radios" role="radiogroup" aria-label="Mode de notification">
+          <label><input type="radio" name="mode" value="recu" checked> Acte reçu ou événement survenu à cette date</label>
+          <label><input type="radio" name="mode" value="fiction"> Pli recommandé non retiré</label>
+        </div>
+        <div class="sub" id="avisBox" hidden>
+          <label for="avis">Date du premier avis de retrait</label>
+          <input id="avis" type="date">
+        </div>
+        <label class="check" id="normalBox"><input type="checkbox" id="normal"> Envoi postal normal, sans signature</label>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">2</span>Type de procédure</legend>
+        <div class="chips" id="domains" role="group" aria-label="Type de procédure"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">3</span>Canton</legend>
+        <label for="canton" id="cantonLabel" class="sr">Canton</label>
+        <select id="canton">
+          <option value="VD">Vaud</option>
+          <option value="GE">Genève</option>
+          <option value="FR">Fribourg</option>
+          <option value="NE">Neuchâtel</option>
+          <option value="VS">Valais</option>
+          <option value="JU">Jura</option>
+          <option value="XX">Autre canton</option>
+        </select>
+        <div class="hint" id="cantonHint"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span class="n">4</span>Acte ou délai</legend>
+        <label for="act">Acte ou procédure</label>
+        <select id="act"></select>
+        <div class="hint" id="actNote"></div>
+        <div class="or">et/ou</div>
+        <div class="row">
+          <div><label for="n">Délai</label><input id="n" type="number" min="1" max="3650" inputmode="numeric" placeholder="ex. 30"></div>
+          <div><label for="unit">Unité</label><select id="unit"><option value="j">jours</option><option value="m">mois</option></select></div>
+        </div>
+        <div id="regBox">
+          <label for="reg">Suspension des délais (féries)</label>
+          <select id="reg"></select>
+        </div>
+        <label class="check" id="noticeBox" hidden><input type="checkbox" id="notice145" checked> Le tribunal a signalé que les délais ne sont pas suspendus (art. 145 al. 3 CPC)</label>
+        <div class="legal" id="legal"></div>
+      </fieldset>
+    </form>
+
+    <section class="panel result" aria-live="polite" aria-labelledby="rTitle">
+      <div class="r-label" id="rTitle">Dernier jour du délai</div>
+      <div class="date empty" id="rDate">Indiquez la date de la communication.</div>
+      <div id="rChip"></div>
+      <div class="alerts" id="rAlerts"></div>
+      <div class="tl" id="rTl" hidden>
+        <div class="bar" id="rBar"></div>
+        <div class="tl-ends"><span id="tlA"></span><span id="tlB"></span></div>
+        <div class="legendrow"><span><i style="background:var(--turq)"></i>jours comptés</span><span><i style="background:repeating-linear-gradient(135deg,var(--muted) 0 2px,transparent 2px 6px);opacity:.6"></i>féries (suspension)</span><span><i style="background:var(--orange)"></i>report ou prolongation</span></div>
+      </div>
+      <div id="rDetails" hidden>
+        <h2>Calcul</h2>
+        <ol class="steps" id="rSteps"></ol>
+        <h2>Règles à garder en tête</h2>
+        <ul class="rules" id="rRules"></ul>
+      </div>
+      <div class="actions">
+        <button class="btn" id="copy" type="button">Copier le résumé</button>
+        <button class="btn ghost" id="print" type="button">Imprimer</button>
+        <button class="btn ghost" id="reset" type="button">Réinitialiser</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="inner">
+      <details id="disclaimer">
+        <summary>Avertissement</summary>
+        <p>Cet outil est mis à disposition par id est avocats Sàrl à titre d’aide au calcul. Il ne constitue pas un conseil juridique et son utilisation ne crée aucune relation de mandat avec l’étude.</p>
+        <p>Les résultats sont indicatifs. Ils dépendent des informations saisies et de règles simplifiées (jours fériés retenus, régime des féries, règles de notification). L’utilisateur doit vérifier lui-même chaque délai au regard de la loi applicable, de la jurisprudence, de l’indication des voies de droit et des circonstances du cas.</p>
+        <p>Les textes légaux ont été consultés aux dates indiquées ci-dessous ; ils peuvent avoir été modifiés depuis. En cas de doute sur le caractère férié d’un jour, l’outil ne le retient pas, ce qui conduit à une échéance plus précoce.</p>
+        <p>Dans les limites autorisées par la loi, id est avocats Sàrl décline toute responsabilité pour les conséquences de l’utilisation de l’outil, notamment en cas de délai manqué. La responsabilité pour dol ou faute grave demeure réservée (art. 100 CO).</p>
+        <p>Aucune donnée saisie n’est transmise : les calculs sont effectués dans le navigateur. Seuls le type de procédure et le canton choisis sont mémorisés localement sur l’appareil, pour la prochaine utilisation.</p>
+      </details>
+      <p><b>Sources consultées :</b> CPC (état au 1er juillet 2026), LP (1er janvier 2026), CPP (1er avril 2025), LTF (1er avril 2026), PA (1er juillet 2022), LMP (1er janvier 2026) ; LPA-VD (BLV 173.36), AIMP 2019 (BLV 726.91) et LMP-VD ; LPA-GE (rsGE E 5 10), AIMP 1994/2001 et L-AIMP (rsGE L 6 05 et L 6 05.0) ; CPJA (RSF 150.1), LJ (RSF 130.1), AIMP 2019 (RSF 122.91.3) et LCMP (RSF 122.91.1) ; LPA-NE du 18 mars 2025 (RSN 152.130), règlement des fonctionnaires (RSN 152.512), AIMP 2019 (RSN 601.710) ; LPJA (RS/VS 172.6), règlement sur le repos du dimanche et des jours de fête (RS/VS 822.200), AIMP 2019 (RS/VS 726.1-1) ; Cpa (RSJU 175.1), loi sur les jours fériés officiels (RSJU 555.1), AIMP 2019 (RSJU 174.01) ; LPGA (1er janvier 2024) ; loi vaudoise sur l’emploi (art. 47), loi genevoise sur les jours fériés (rsGE J 1 45), loi neuchâteloise sur le dimanche et les jours fériés (RSN 941.02) ; projet de loi genevois PL 13620 ; ATF 138 III 615, ATF 139 III 78, TF 5A_691/2023 du 13 août 2024, TF 5A_989/2025 du 27 mars 2026. Version 1.1, octobre 2026.</p>
+    </div>
+  </footer>
+</div>
+<div class="bottomband"><div class="wrap"><span>© 2026 id est avocats Sàrl</span><span>Outil d’aide au calcul, à vérifier dans chaque cas</span></div></div>
+
+<script>
+// ===== Moteur de calcul des délais (droit suisse) =====
+// id est avocats, outil d'aide au calcul. À vérifier dans chaque cas.
+const Delais = (() => {
+  const DAY = 86400000;
+  const dn = (y, m, d) => Math.round(Date.UTC(y, m - 1, d) / DAY);
+  const ymd = n => { const t = new Date(n * DAY); return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), dow: t.getUTCDay() }; };
+  const parseISO = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? dn(+m[1], +m[2], +m[3]) : null; };
+  const toISO = n => { const a = ymd(n); return `${a.y}-${String(a.m).padStart(2, '0')}-${String(a.d).padStart(2, '0')}`; };
+  const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const fmtLong = n => { const a = ymd(n); return `${JOURS[a.dow]} ${a.d === 1 ? '1er' : a.d} ${MOIS[a.m - 1]} ${a.y}`; };
+  const fmtShort = n => { const a = ymd(n); return `${String(a.d).padStart(2, '0')}.${String(a.m).padStart(2, '0')}.${a.y}`; };
+
+  function easter(y) {
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+    return dn(y, month, day);
+  }
+  const nthSunday = (y, m, nth) => { let d = dn(y, m, 1); while (ymd(d).dow !== 0) d++; return d + 7 * (nth - 1); };
+
+  // Jours fériés pris en compte pour l'échéance, par jeu (canton et, le cas échéant, procédure)
+  // Règle de prudence : en cas de doute sur le caractère férié d'un jour, il n'est pas retenu (échéance plus précoce).
+  const HOLI_SETS = {
+    VD: ['1jan', '2jan', 'vs', 'lp', 'asc', 'lpe', '1aout', 'jeune', 'noel'],
+    GE: ['1jan', 'vs', 'lp', 'asc', 'lpe', '1aout', 'jgen', 'noel', '31dec'],
+    FR: ['1jan', '2jan', 'vs', 'lp', 'asc', 'lpe', 'fdieu', '1aout', '15aout', '1nov', '8dec', 'noel', '26dec'],
+    NE: ['1jan', '2janS', '1mars', 'vs', '1mai', 'asc', '1aout', 'noel', '26decS'],
+    NE_ADM: ['31dec', '1jan', '2jan', '1mars', 'vs', 'lp', '1mai', 'asc', 'ascv', 'lpe', '1aout', 'jeune', '24dec', 'noel', '26dec'],
+    VS: ['1jan', '19mars', 'asc', 'fdieu', '1aout', '15aout', '1nov', '8dec', 'noel'],
+    VS_ADM: ['1jan', '2jan', '19mars', 'lp', 'asc', 'lpe', 'fdieu', '1aout', '15aout', '1nov', '8dec', 'noel', '26dec'],
+    JU: ['1jan', '2jan', 'vs', 'lp', '1mai', 'asc', 'lpe', 'fdieu', '23juin', '1aout', '15aout', '1nov', 'noel'],
+    XX: ['1jan', 'asc', '1aout', 'noel'],
+  };
+  const HOLI_CACHE = new Map();
+  function holidays(set, y) {
+    const key = set + y;
+    if (HOLI_CACHE.has(key)) return HOLI_CACHE.get(key);
+    const E = easter(y);
+    const DEF = {
+      '1jan': [dn(y, 1, 1), 'Nouvel An'], '2jan': [dn(y, 1, 2), '2 janvier'], '1mars': [dn(y, 3, 1), 'Instauration de la République'],
+      '19mars': [dn(y, 3, 19), 'Saint-Joseph'], 'vs': [E - 2, 'Vendredi saint'], 'lp': [E + 1, 'lundi de Pâques'], '1mai': [dn(y, 5, 1), '1er mai'],
+      'asc': [E + 39, 'Ascension'], 'ascv': [E + 40, 'vendredi de l’Ascension'], 'lpe': [E + 50, 'lundi de Pentecôte'], 'fdieu': [E + 60, 'Fête-Dieu'],
+      '23juin': [dn(y, 6, 23), 'Commémoration du plébiscite jurassien'], '1aout': [dn(y, 8, 1), 'Fête nationale'], '15aout': [dn(y, 8, 15), 'Assomption'],
+      'jeune': [nthSunday(y, 9, 3) + 1, 'lundi du Jeûne fédéral'], 'jgen': [nthSunday(y, 9, 1) + 4, 'Jeûne genevois'], '1nov': [dn(y, 11, 1), 'Toussaint'],
+      '8dec': [dn(y, 12, 8), 'Immaculée Conception'], '24dec': [dn(y, 12, 24), '24 décembre'], 'noel': [dn(y, 12, 25), 'Noël'], '26dec': [dn(y, 12, 26), '26 décembre'],
+      '31dec': [dn(y, 12, 31), '31 décembre'],
+      '2janS': ymd(dn(y, 1, 1)).dow === 0 ? [dn(y, 1, 2), '2 janvier (1er janvier un dimanche)'] : null,
+      '26decS': ymd(dn(y, 12, 25)).dow === 0 ? [dn(y, 12, 26), '26 décembre (Noël un dimanche)'] : null,
+    };
+    const map = new Map((HOLI_SETS[set] || HOLI_SETS.XX).map(k => DEF[k]).filter(Boolean));
+    HOLI_CACHE.set(key, map);
+    return map;
+  }
+
+  // Périodes de suspension
+  function feriesRanges(kind, y) {
+    const E = easter(y), r = [];
+    const easterR = () => r.push([E - 7, E + 7, 'féries de Pâques']);
+    const summer = () => r.push([dn(y, 7, 15), dn(y, 8, 15), 'féries d’été']);
+    const xmas = (endDay, label) => { r.push([dn(y, 12, 18), dn(y + 1, 1, endDay), label]); r.push([dn(y - 1, 12, 18), dn(y, 1, endDay), label]); };
+    if (kind === 'CPC') { easterR(); summer(); xmas(2, 'féries de fin d’année'); }
+    else if (kind === 'VS') { easterR(); summer(); xmas(5, 'féries de fin d’année'); }
+    else if (kind === 'FR') { easterR(); xmas(2, 'féries de fin d’année'); }
+    else if (kind === 'LP') { easterR(); r.push([dn(y, 7, 15), dn(y, 7, 31), 'féries de juillet']); xmas(1, 'féries de Noël'); }
+    return r;
+  }
+  function feriesAt(kind, n) {
+    if (!kind) return null;
+    const y = ymd(n).y;
+    for (const r of feriesRanges(kind, y)) if (n >= r[0] && n <= r[1]) return r;
+    return null;
+  }
+  function addMonths(n, k) {
+    const a = ymd(n);
+    let m = a.m - 1 + k; const y = a.y + Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    const last = ymd(dn(y, m + 2, 1) - 1).d;
+    return dn(y, m + 1, Math.min(a.d, last));
+  }
+
+  // o : { holi, event, avis, mode:'recu'|'fiction', normalPost, unit:'j'|'m', n, feries, suspendMonths, lp63, refs… }
+  function compute(o) {
+    const steps = [], notes = [];
+    const isHol = n => holidays(o.holi, ymd(n).y).get(n) || null;
+    const isWE = n => { const w = ymd(n).dow; return w === 0 || w === 6; };
+    const work = n => !isWE(n) && !isHol(n);
+    const why = n => isWE(n) ? (ymd(n).dow === 6 ? 'samedi' : 'dimanche') : isHol(n);
+
+    let ev;
+    if (o.mode === 'fiction') {
+      ev = o.avis + 7;
+      steps.push({ k: 'notif', t: `Premier avis de retrait le ${fmtShort(o.avis)} : l’acte est réputé notifié le 7e jour, soit le ${fmtShort(ev)}.`, ref: o.fictionRef });
+    } else {
+      ev = o.event;
+      steps.push({ k: 'notif', t: `Communication le ${fmtShort(ev)} (${JOURS[ymd(ev).dow]}).` });
+      if (o.normalPost && !work(ev)) {
+        if (o.normalPostRule) {
+          let e2 = ev; while (!work(e2)) e2++;
+          steps.push({ k: 'notif', t: `Envoi postal normal reçu un ${why(ev)} : communication réputée le ${fmtShort(e2)}.`, ref: o.normalPostRule });
+          ev = e2;
+        } else notes.push({ lvl: 'warn', t: 'Envoi normal reçu un samedi, un dimanche ou un jour férié : pas de règle expresse de report pour cette procédure. Le calcul retient la date de réception ; vérifiez la jurisprudence.' });
+      }
+    }
+
+    const start = ev + 1;
+    let countDays;
+    if (o.unit === 'm') {
+      const base = addMonths(ev, o.n);
+      countDays = base - ev;
+      steps.push({ k: 'start', t: `Le délai de ${o.n} mois commence à courir le ${fmtShort(start)} ; sans suspension, il échoirait le ${fmtShort(base)}.`, ref: o.startRef + (o.monthRef ? ', ' + o.monthRef : '') });
+    } else {
+      countDays = o.n;
+      steps.push({ k: 'start', t: `Le délai de ${o.n} jour${o.n > 1 ? 's' : ''} commence à courir le ${fmtShort(start)}.`, ref: o.startRef });
+    }
+    const useSusp = !!o.feries && o.feries !== 'LP' && (o.unit === 'j' || o.suspendMonths);
+    let end, suspended = [];
+    if (useSusp) {
+      let d = ev, c = 0, cur = null;
+      while (c < countDays) {
+        d++;
+        const f = feriesAt(o.feries, d);
+        if (f) { if (!cur || cur.r[0] !== f[0] || cur.to !== d - 1) { cur = { r: f, from: d, to: d }; suspended.push(cur); } else cur.to = d; }
+        else { c++; cur = null; }
+      }
+      end = d;
+      if (suspended.length && suspended[0].from === start) {
+        const st = steps.find(x => x.k === 'start');
+        if (st) st.t = st.t.replace('commence à courir le', 'commencerait à courir le');
+      }
+      for (const s of suspended) {
+        const len = s.to - s.from + 1, pl = len > 1 ? 's' : '';
+        const atStart = s.from === start;
+        steps.push({ k: 'feries', t: atStart
+          ? `Communication pendant les ${s.r[2]} : le délai ne court qu’à partir du ${fmtShort(s.to + 1)} (${len} jour${pl} non compté${pl}).`
+          : `Suspension pendant les ${s.r[2]}, du ${fmtShort(s.from)} au ${fmtShort(s.to)} (${len} jour${pl} non compté${pl}).`, ref: atStart && o.noticeRef ? o.noticeRef : o.ferRef });
+      }
+    } else end = ev + countDays;
+    const raw = end;
+    steps.push({ k: 'raw', t: `Échéance théorique : ${fmtLong(raw)}.` });
+
+    if (!work(end)) {
+      const r0 = why(end);
+      while (!work(end)) end++;
+      steps.push({ k: 'shift', t: `Le ${fmtShort(raw)} est un ${r0 === 'samedi' || r0 === 'dimanche' ? r0 : 'jour férié (' + r0 + ')'} : l’échéance est reportée au premier jour ouvrable, le ${fmtShort(end)}.`, ref: o.shiftRef });
+    }
+    if (o.lp63) {
+      const f = feriesAt('LP', end);
+      if (f) {
+        let d = f[1], c = 0;
+        while (c < 3) { d++; if (work(d)) c++; }
+        steps.push({ k: 'lp63', t: `Le ${fmtShort(end)} tombe pendant les ${f[2]} de poursuite (jusqu’au ${fmtShort(f[1])}) : le délai est prolongé au troisième jour utile, le ${fmtShort(d)}.`, ref: 'art. 63 LP' });
+        end = d;
+      }
+    }
+    if (!o.feries && o.noFerRef) {
+      for (let d = start; d <= end; d++) if (feriesAt('CPC', d)) { notes.push({ lvl: 'info', t: `La période couvre des jours habituellement fériés pour les tribunaux, mais la suspension ne s’applique pas ici (${o.noFerRef}).` }); break; }
+    }
+    return { ev, start, raw, end, steps, notes, suspended };
+  }
+
+  return { dn, ymd, parseISO, toISO, fmtLong, fmtShort, easter, holidays, feriesAt, addMonths, compute, HOLI_SETS };
+})();
+
+</script>
+<script>
+(() => {
+const D = Delais;
+const $ = s => document.querySelector(s);
+const store = { get(k, d) { try { const v = localStorage.getItem('idest-delais:' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('idest-delais:' + k, JSON.stringify(v)); } catch (e) {} } };
+
+// ---------- Régimes ----------
+const JUR = 'fiction de notification au 7e jour (jurisprudence)';
+const R = {
+  CPC: { feries: 'CPC', suspendMonths: true, startRef: 'art. 142 al. 1 CPC', monthRef: 'art. 142 al. 2 CPC ; TF 5A_691/2023, consid. 5.6', ferRef: 'art. 145 al. 1 CPC', noticeRef: 'art. 146 al. 1 CPC', shiftRef: 'art. 142 al. 3 CPC', normalPostRule: 'art. 142 al. 1bis CPC', fictionRef: 'art. 138 al. 3 let. a CPC',
+    rules: ['L’acte doit être remis au tribunal ou à La Poste suisse au plus tard le dernier jour du délai (art. 143 al. 1 CPC).', 'Les délais légaux ne peuvent pas être prolongés (art. 144 al. 1 CPC).'] },
+  CPCS: { feries: null, startRef: 'art. 142 al. 1 CPC', monthRef: 'art. 142 al. 2 CPC ; TF 5A_691/2023, consid. 5.6', noFerRef: 'art. 145 al. 2 CPC', shiftRef: 'art. 142 al. 3 CPC', normalPostRule: 'art. 142 al. 1bis CPC', fictionRef: 'art. 138 al. 3 let. a CPC',
+    rules: ['Pas de suspension des délais en procédure sommaire ni en procédure de conciliation (art. 145 al. 2 CPC). Le tribunal doit en avertir les parties ; à défaut, les délais sont suspendus (art. 145 al. 3 CPC ; ATF 139 III 78).', 'L’acte doit être remis au tribunal ou à La Poste suisse au plus tard le dernier jour du délai (art. 143 al. 1 CPC).', 'Les délais légaux ne peuvent pas être prolongés (art. 144 al. 1 CPC).'] },
+  LPO: { feries: 'LP', lp63: true, startRef: 'art. 31 LP et 142 al. 1 CPC', monthRef: 'art. 31 LP et 142 al. 2 CPC', shiftRef: 'art. 31 LP et 142 al. 3 CPC', normalPostRule: 'art. 31 LP et 142 al. 1bis CPC', fictionRef: 'art. 31 LP et 138 al. 3 let. a CPC',
+    rules: ['Les délais LP courent pendant les féries de poursuite ; s’ils échoient pendant celles-ci, ils sont prolongés au troisième jour utile (art. 63 LP).', 'Féries de poursuite : sept jours avant et après Pâques et Noël, et du 15 au 31 juillet (art. 56 ch. 2 LP).', 'Calcul et observation des délais selon le CPC (art. 31 LP).'] },
+  CPP: { feries: null, daysOnly: true, startRef: 'art. 90 al. 1 CPP', noFerRef: 'art. 89 al. 2 CPP', shiftRef: 'art. 90 al. 2 CPP', normalPostRule: null, fictionRef: 'art. 85 al. 4 let. a CPP',
+    rules: ['La procédure pénale ne connaît pas de féries judiciaires (art. 89 al. 2 CPP).', 'Les délais légaux ne peuvent pas être prolongés (art. 89 al. 1 CPP).', 'Remise à l’autorité pénale ou à La Poste suisse au plus tard le dernier jour du délai (art. 91 al. 2 CPP).'] },
+  LTF: { feries: 'CPC', daysOnly: true, postNote: 'Une loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA ; vérifiez son entrée en vigueur.', startRef: 'art. 44 al. 1 LTF', ferRef: 'art. 46 al. 1 LTF', noticeRef: 'art. 46 al. 1 LTF', shiftRef: 'art. 45 LTF', normalPostRule: null, fictionRef: 'art. 44 al. 2 LTF',
+    rules: ['Remise au Tribunal fédéral ou à La Poste suisse au plus tard le dernier jour du délai (art. 48 al. 1 LTF).', 'Les délais légaux ne peuvent pas être prolongés (art. 47 al. 1 LTF).'] },
+  LTFN: { feries: null, daysOnly: true, postNote: 'Une loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA ; vérifiez son entrée en vigueur.', startRef: 'art. 44 al. 1 LTF', noFerRef: 'art. 46 al. 2 LTF', shiftRef: 'art. 45 LTF', normalPostRule: null, fictionRef: 'art. 44 al. 2 LTF',
+    rules: ['Pas de suspension des délais dans cette matière (art. 46 al. 2 LTF).', 'Remise au Tribunal fédéral ou à La Poste suisse au plus tard le dernier jour du délai (art. 48 al. 1 LTF).'] },
+  PA: { feries: 'CPC', daysOnly: true, postNote: 'Une loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA ; vérifiez son entrée en vigueur.', startRef: 'art. 20 al. 1 PA', ferRef: 'art. 22a al. 1 PA', noticeRef: 'art. 22a al. 1 PA', shiftRef: 'art. 20 al. 3 PA', normalPostRule: null, fictionRef: 'art. 20 al. 2bis PA',
+    rules: ['Remise à l’autorité ou à La Poste suisse au plus tard le dernier jour du délai (art. 21 al. 1 PA).', 'Les délais légaux ne peuvent pas être prolongés (art. 22 al. 1 PA).'] },
+  PAN: { feries: null, daysOnly: true, postNote: 'Une loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA ; vérifiez son entrée en vigueur.', startRef: 'art. 20 al. 1 PA', noFerRef: 'art. 22a al. 2 PA', shiftRef: 'art. 20 al. 3 PA', normalPostRule: null, fictionRef: 'art. 20 al. 2bis PA',
+    rules: ['Pas de suspension des délais dans cette matière.', 'Remise à l’autorité ou à La Poste suisse au plus tard le dernier jour du délai (art. 21 al. 1 PA).'] },
+  VD: { feries: 'CPC', daysOnly: true, startRef: 'art. 19 al. 1 LPA-VD', ferRef: 'art. 96 al. 1 LPA-VD', noticeRef: 'art. 96 al. 1 LPA-VD', shiftRef: 'art. 19 al. 2 LPA-VD', normalPostRule: 'art. 19 al. 1bis LPA-VD', fictionRef: JUR,
+    rules: ['Féries de l’art. 96 LPA-VD : du 7e jour avant au 7e jour après Pâques, du 15 juillet au 15 août et du 18 décembre au 2 janvier.', 'Remise à l’autorité, à un bureau de poste suisse ou à une représentation suisse au plus tard le dernier jour du délai (art. 20 al. 1 LPA-VD).'] },
+  VDN: { feries: null, daysOnly: true, startRef: 'art. 19 al. 1 LPA-VD', noFerRef: 'art. 96 al. 2 LPA-VD', shiftRef: 'art. 19 al. 2 LPA-VD', normalPostRule: 'art. 19 al. 1bis LPA-VD', fictionRef: JUR, rules: ['Pas de suspension des délais dans cette matière.', 'Remise au plus tard le dernier jour du délai (art. 20 al. 1 LPA-VD).'] },
+  VDA: { feries: null, daysOnly: true, startRef: 'art. 19 al. 1 LPA-VD', noFerRef: 'les féries de l’art. 96 LPA-VD visent le recours au Tribunal cantonal', shiftRef: 'art. 19 al. 2 LPA-VD', normalPostRule: 'art. 19 al. 1bis LPA-VD', fictionRef: JUR,
+    rules: ['L’art. 96 LPA-VD (féries) figure au chapitre V, consacré au recours au Tribunal cantonal ; l’art. 99 rend le chapitre IV applicable à ce recours, et non l’inverse. L’outil n’applique donc pas les féries à la réclamation ni au recours administratif, ce qui donne l’échéance la plus précoce. Vérifiez la loi spéciale et la jurisprudence.', 'Remise au plus tard le dernier jour du délai (art. 20 al. 1 LPA-VD).'] },
+  GE: { feries: 'CPC', daysOnly: true, startRef: 'art. 17 al. 1 et 62 al. 3 LPA-GE', ferRef: 'art. 63 al. 1 LPA-GE', noticeRef: 'art. 63 al. 1 LPA-GE', shiftRef: 'art. 17 al. 3 LPA-GE', normalPostRule: 'art. 17 al. 6 LPA-GE', fictionRef: 'art. 62 al. 4 LPA-GE',
+    rules: ['Remise à l’autorité, à La Poste suisse ou à une représentation suisse au plus tard le dernier jour du délai avant minuit (art. 17 al. 4 LPA-GE).', 'Si la décision indique par erreur un délai plus long que le délai légal, le recours peut être formé jusqu’à l’expiration du délai indiqué (art. 62 al. 2 LPA-GE).'] },
+  GEN: { feries: null, daysOnly: true, startRef: 'art. 17 al. 1 et 62 al. 3 LPA-GE', noFerRef: 'art. 63 al. 2 LPA-GE', shiftRef: 'art. 17 al. 3 LPA-GE', normalPostRule: 'art. 17 al. 6 LPA-GE', fictionRef: 'art. 62 al. 4 LPA-GE',
+    rules: ['Pas de suspension des délais dans cette matière.', 'Remise au plus tard le dernier jour du délai avant minuit (art. 17 al. 4 LPA-GE).'] },
+  FR_TC: { feries: 'CPC', suspendMonths: true, startRef: 'art. 27 al. 1 CPJA', ferRef: 'art. 30 al. 1 et 2 CPJA', noticeRef: 'art. 30 CPJA', shiftRef: 'art. 27 al. 2 CPJA et art. 121 LJ', normalPostRule: null, fictionRef: JUR,
+    rules: ['Dans les affaires relevant du Tribunal cantonal, les délais ne courent pas à Pâques, du 15 juillet au 15 août et du 18 décembre au 2 janvier (art. 30 al. 1 et 2 CPJA).', 'Pas de suspension pour un délai fixé à un jour précis (art. 30 al. 3 CPJA).', 'Remise à l’autorité, à La Poste suisse ou à une représentation suisse au plus tard le dernier jour (art. 28 al. 1 CPJA).'] },
+  FR_AD: { feries: 'FR', suspendMonths: true, startRef: 'art. 27 al. 1 CPJA', ferRef: 'art. 30 al. 1 CPJA', noticeRef: 'art. 30 al. 1 CPJA', shiftRef: 'art. 27 al. 2 CPJA et art. 121 LJ', normalPostRule: null, fictionRef: JUR,
+    rules: ['Hors affaires du Tribunal cantonal, seules les féries de Pâques et de fin d’année s’appliquent (art. 30 al. 1 CPJA) ; celles de l’été ne valent que devant le Tribunal cantonal (art. 30 al. 2 CPJA).', 'Remise à l’autorité, à La Poste suisse ou à une représentation suisse au plus tard le dernier jour (art. 28 al. 1 CPJA).'] },
+  FR_N: { feries: null, startRef: 'art. 27 al. 1 CPJA', noFerRef: 'règle spéciale', shiftRef: 'art. 27 al. 2 CPJA et art. 121 LJ', normalPostRule: null, fictionRef: JUR,
+    rules: ['Pas de suspension des délais dans cette matière.', 'Remise au plus tard le dernier jour (art. 28 al. 1 CPJA).'] },
+  NE: { feries: 'CPC', suspendMonths: true, startRef: 'art. 33 al. 1 LPA-NE', ferRef: 'art. 37 LPA-NE', noticeRef: 'art. 37 LPA-NE', shiftRef: 'art. 33 al. 2 et 3 LPA-NE', normalPostRule: null, fictionRef: JUR,
+    rules: ['Les délais légaux et fixés par l’autorité ne courent pas à Pâques, du 15 juillet au 15 août et du 18 décembre au 2 janvier (art. 37 LPA-NE).', 'Un délai légal ne peut pas être prolongé (art. 35 al. 1 LPA-NE).', 'Les congés compensatoires accordés par le Conseil d’État ne sont pas pris en compte : vérifiez.'] },
+  NEN: { feries: null, startRef: 'art. 33 al. 1 LPA-NE', noFerRef: 'règle spéciale', shiftRef: 'art. 33 al. 2 et 3 LPA-NE', normalPostRule: null, fictionRef: JUR, rules: ['Pas de suspension des délais dans cette matière.'] },
+  VS_TC: { feries: 'VS', suspendMonths: true, startRef: 'art. 15 al. 1 LPJA-VS', ferRef: 'art. 79a LPJA-VS', noticeRef: 'art. 79a LPJA-VS', shiftRef: 'art. 15 al. 2 et 4 LPJA-VS (renvoi aux art. 77 ss CO)', normalPostRule: null, fictionRef: JUR,
+    rules: ['Devant le Tribunal cantonal, les délais ne courent pas à Pâques, du 15 juillet au 15 août et du 18 décembre au 5 janvier (art. 79a LPJA-VS).', 'Un envoi dont le timbre postal porte la date du dernier jour est réputé effectué dans le délai (art. 15 al. 3 LPJA-VS).'] },
+  VS_AD: { feries: null, startRef: 'art. 15 al. 1 LPJA-VS', noFerRef: 'les féries de l’art. 79a LPJA-VS visent la procédure devant le Tribunal cantonal', shiftRef: 'art. 15 al. 2 et 4 LPJA-VS (renvoi aux art. 77 ss CO)', normalPostRule: null, fictionRef: JUR,
+    rules: ['Pas de suspension des délais devant les autorités administratives (l’art. 79a LPJA-VS vise le Tribunal cantonal).', 'Un envoi dont le timbre postal porte la date du dernier jour est réputé effectué dans le délai (art. 15 al. 3 LPJA-VS).'] },
+  JU: { feries: 'CPC', suspendMonths: true, startRef: 'art. 44 al. 1 Cpa-JU', ferRef: 'art. 44a al. 1 Cpa-JU', noticeRef: 'art. 44a al. 1 Cpa-JU', shiftRef: 'art. 44 al. 3 Cpa-JU', normalPostRule: null, fictionRef: JUR,
+    rules: ['En procédure d’opposition et devant la juridiction administrative, les délais ne courent pas à Pâques, du 15 juillet au 15 août et du 18 décembre au 2 janvier (art. 44a al. 1 Cpa-JU).', 'Remise à l’autorité, à La Poste suisse ou à une représentation suisse au plus tard le dernier jour (art. 45 al. 1 Cpa-JU).', 'Un délai légal ne peut être prolongé que si la loi le prévoit (art. 47 al. 1 Cpa-JU).'] },
+  JUN: { feries: null, startRef: 'art. 44 al. 1 Cpa-JU', noFerRef: 'art. 44a al. 2 Cpa-JU', shiftRef: 'art. 44 al. 3 Cpa-JU', normalPostRule: null, fictionRef: JUR, rules: ['Pas de suspension des délais dans cette matière.'] },
+  LPGA: { feries: 'CPC', suspendMonths: true, startRef: 'art. 38 al. 1 LPGA', ferRef: 'art. 38 al. 4 LPGA', noticeRef: 'art. 38 al. 4 LPGA', shiftRef: 'art. 38 al. 3 LPGA', normalPostRule: null, fictionRef: 'art. 38 al. 2bis LPGA', postNote: 'Une loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA ; vérifiez son entrée en vigueur.',
+    rules: ['Les délais en jours ou en mois ne courent pas à Pâques, du 15 juillet au 15 août et du 18 décembre au 2 janvier (art. 38 al. 4 LPGA) ; une loi spéciale peut y déroger.', 'Remise à l’assureur, au tribunal ou à La Poste suisse au plus tard le dernier jour du délai (art. 39 al. 1 LPGA).', 'Les délais légaux ne peuvent pas être prolongés (art. 40 al. 1 LPGA).', 'Jours fériés : ceux du canton du domicile ou du siège de la partie ou de son mandataire (art. 38 al. 3 LPGA).'] },
+  CANT_N: { feries: null, startRef: 'droit cantonal de procédure', noFerRef: 'règle spéciale', shiftRef: 'droit cantonal de procédure', normalPostRule: null, fictionRef: JUR,
+    rules: ['Le point de départ et le report de l’échéance suivent la loi de procédure du canton concerné : vérifiez-la.'] },
+};
+
+// Régime proposé lorsque aucun acte n’est choisi
+const REG_OPTS = {
+  cpc: () => [['CPC', 'Procédure ordinaire ou simplifiée : avec suspension (art. 145 al. 1 CPC)'], ['CPCS', 'Procédure sommaire ou de conciliation : sans suspension (art. 145 al. 2 CPC)']],
+  lp: () => [['LPO', 'Délai devant l’office ou l’autorité de surveillance (art. 63 LP)'], ['CPC', 'Action devant le juge : suspension selon le CPC (art. 145 al. 4 CPC)'], ['CPCS', 'Procédure sommaire devant le juge : sans suspension']],
+  cpp: () => [['CPP', 'Aucune : pas de féries en procédure pénale (art. 89 al. 2 CPP)']],
+  ltf: () => [['LTF', 'Avec suspension (art. 46 al. 1 LTF)'], ['LTFN', 'Sans suspension (art. 46 al. 2 LTF)']],
+  pa: () => [['PA', 'Avec suspension (art. 22a al. 1 PA)'], ['PAN', 'Sans suspension (art. 22a al. 2 PA)']],
+  lpga: () => [['LPGA', 'Avec suspension, délais en jours et en mois (art. 38 al. 4 LPGA)']],
+  adm: c => ({
+    VD: [['VD', 'Recours au Tribunal cantonal : féries (art. 96 LPA-VD)'], ['VDA', 'Autre procédure : sans féries']],
+    GE: [['GE', 'Avec suspension (art. 63 al. 1 LPA-GE)'], ['GEN', 'Sans suspension (art. 63 al. 2 LPA-GE)']],
+    FR: [['FR_TC', 'Affaire du Tribunal cantonal : Pâques, été, fin d’année (art. 30 CPJA)'], ['FR_AD', 'Autre affaire : Pâques et fin d’année (art. 30 al. 1 CPJA)'], ['FR_N', 'Sans suspension']],
+    NE: [['NE', 'Avec suspension (art. 37 LPA-NE)'], ['NEN', 'Sans suspension']],
+    VS: [['VS_TC', 'Recours au Tribunal cantonal : féries (art. 79a LPJA-VS)'], ['VS_AD', 'Autre procédure : sans féries']],
+    JU: [['JU', 'Opposition ou juridiction administrative : féries (art. 44a al. 1 Cpa-JU)'], ['JUN', 'Sans suspension (art. 44a al. 2 Cpa-JU)']],
+    XX: [['CANT_N', 'Selon le droit cantonal : aucune suspension appliquée']],
+  })[c],
+  mp: c => [[{ VD: 'VDN', GE: 'GEN', FR: 'FR_N', NE: 'NEN', VS: 'VS_AD', JU: 'JUN', XX: 'CANT_N' }[c], 'Aucune : pas de féries en marchés publics']],
+};
+
+// ---------- Actes ----------
+const A = (id, label, n, unit, reg, ref, x = {}) => ({ id, label, n, unit, reg, ref, ...x });
+const ACTS = [
+  // CPC
+  A('cpc_appel', 'Appel, procédure ordinaire ou simplifiée', 30, 'j', 'CPC', 'art. 311 al. 1 CPC', { dom: 'cpc', start: 'Notification de la décision motivée' }),
+  A('cpc_appel_som', 'Appel, procédure sommaire', 10, 'j', 'CPCS', 'art. 314 al. 1 CPC', { dom: 'cpc', start: 'Notification de la décision motivée' }),
+  A('cpc_appel_fam', 'Appel, droit de la famille en procédure sommaire (art. 271, 276, 302 et 305 CPC)', 30, 'j', 'CPCS', 'art. 314 al. 2 CPC', { dom: 'cpc', start: 'Notification de la décision motivée', note: 'Délai de 30 jours depuis le 1er janvier 2025, toujours sans suspension (procédure sommaire).' }),
+  A('cpc_rep_appel', 'Réponse à l’appel, procédure ordinaire ou simplifiée', 30, 'j', 'CPC', 'art. 312 al. 2 CPC', { dom: 'cpc', start: 'Notification de l’appel', note: 'L’appel joint se forme dans la réponse (art. 313 al. 1 CPC).' }),
+  A('cpc_rep_appel_som', 'Réponse à l’appel, procédure sommaire', 10, 'j', 'CPCS', 'art. 314 al. 1 CPC', { dom: 'cpc', start: 'Notification de l’appel', note: 'Appel joint irrecevable en procédure sommaire, sauf en droit de la famille (art. 314 CPC).' }),
+  A('cpc_rep_appel_fam', 'Réponse à l’appel, droit de la famille en procédure sommaire', 30, 'j', 'CPCS', 'art. 314 al. 2 CPC', { dom: 'cpc', start: 'Notification de l’appel' }),
+  A('cpc_recours', 'Recours, décision finale non sujette à appel', 30, 'j', 'CPC', 'art. 321 al. 1 CPC', { dom: 'cpc', start: 'Notification de la décision motivée' }),
+  A('cpc_recours_som', 'Recours, décision rendue en procédure sommaire', 10, 'j', 'CPCS', 'art. 321 al. 2 CPC', { dom: 'cpc', start: 'Notification de la décision' }),
+  A('cpc_recours_ord', 'Recours, autre décision ou ordonnance d’instruction (procédure ordinaire ou simplifiée)', 10, 'j', 'CPC', 'art. 321 al. 2 CPC', { dom: 'cpc', start: 'Notification de la décision' }),
+  A('cpc_rep_recours', 'Réponse au recours, décision finale', 30, 'j', 'CPC', 'art. 322 al. 2 et 321 al. 1 CPC', { dom: 'cpc', start: 'Notification du recours', note: 'Le délai de réponse est identique au délai de recours (art. 322 al. 2 CPC).' }),
+  A('cpc_rep_recours_som', 'Réponse au recours, procédure sommaire', 10, 'j', 'CPCS', 'art. 322 al. 2 et 321 al. 2 CPC', { dom: 'cpc', start: 'Notification du recours' }),
+  A('cpc_motiv', 'Demande de motivation écrite, procédure ordinaire ou simplifiée', 10, 'j', 'CPC', 'art. 239 al. 2 CPC', { dom: 'cpc', start: 'Communication du dispositif', note: 'Sans demande de motivation, les parties sont réputées avoir renoncé à l’appel ou au recours (art. 239 al. 2 CPC).' }),
+  A('cpc_motiv_som', 'Demande de motivation écrite, procédure sommaire', 10, 'j', 'CPCS', 'art. 239 al. 2 CPC', { dom: 'cpc', start: 'Communication du dispositif' }),
+  A('cpc_prop', 'Opposition à la proposition de jugement', 20, 'j', 'CPCS', 'art. 211 al. 1 CPC', { dom: 'cpc', start: 'Communication écrite de la proposition', noFer: 'art. 145 al. 2 let. a CPC' }),
+  A('cpc_209', 'Dépôt de la demande après l’autorisation de procéder', 3, 'm', 'CPC', 'art. 209 al. 3 CPC', { dom: 'cpc', start: 'Délivrance de l’autorisation de procéder', note: 'La suspension des délais s’applique à ce délai (ATF 138 III 615).' }),
+  A('cpc_209_bail', 'Dépôt de la demande après l’autorisation de procéder, baux à loyer et à ferme', 30, 'j', 'CPC', 'art. 209 al. 4 CPC', { dom: 'cpc', start: 'Délivrance de l’autorisation de procéder', note: 'La suspension des délais s’applique à ce délai (ATF 138 III 615).' }),
+  A('cpc_restit', 'Requête en restitution de délai', 10, 'j', 'CPC', 'art. 148 al. 2 CPC', { dom: 'cpc', start: 'Jour où la cause du défaut a disparu', note: 'Si la procédure principale est sommaire, il n’y a pas de suspension.' }),
+  A('cpc_revision', 'Demande de révision', 90, 'j', 'CPC', 'art. 329 al. 1 CPC', { dom: 'cpc', start: 'Découverte du motif de révision', note: 'Délai absolu de dix ans dès l’entrée en force de la décision, sauf exception (art. 329 al. 2 CPC).' }),
+  // LP
+  A('lp_opp', 'Opposition au commandement de payer', 10, 'j', 'LPO', 'art. 74 al. 1 LP', { dom: 'lp', start: 'Notification du commandement de payer', note: 'Le commandement de payer est notifié personnellement (art. 64 ss LP) : la fiction de notification ne s’y applique en principe pas.' }),
+  A('lp_plainte', 'Plainte à l’autorité de surveillance', 10, 'j', 'LPO', 'art. 17 al. 2 LP', { dom: 'lp', start: 'Connaissance de la mesure', note: 'Les règles du CPC sur la suspension des délais ne s’appliquent pas à la plainte (art. 145 al. 4 CPC).' }),
+  A('lp_recours_surv', 'Recours contre la décision de l’autorité inférieure de surveillance', 10, 'j', 'LPO', 'art. 18 al. 1 LP', { dom: 'lp', start: 'Notification de la décision' }),
+  A('lp_liberation', 'Action en libération de dette', 20, 'j', 'CPC', 'art. 83 al. 2 LP', { dom: 'lp', start: 'Notification de la décision de mainlevée', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP' }),
+  A('lp_mainlevee', 'Recours contre une décision de mainlevée (procédure sommaire)', 10, 'j', 'CPCS', 'art. 321 al. 2 CPC', { dom: 'lp', start: 'Notification de la décision motivée', note: 'Recours et non appel (art. 309 let. b ch. 3 CPC). Aucune suspension en procédure sommaire LP devant le juge, ni féries du CPC ni art. 63 LP (TF 5A_989/2025 du 27 mars 2026), sous réserve de l’avertissement de l’art. 145 al. 3 CPC.' }),
+  A('lp_faillite', 'Recours contre le jugement de faillite (procédure sommaire)', 10, 'j', 'CPCS', 'art. 174 al. 1 LP', { dom: 'lp', start: 'Notification du jugement de faillite', note: 'Aucune suspension en procédure sommaire LP devant le juge, ni féries du CPC ni art. 63 LP (TF 5A_989/2025 du 27 mars 2026), sous réserve de l’avertissement de l’art. 145 al. 3 CPC.' }),
+  A('lp_seq_opp', 'Opposition à l’ordonnance de séquestre (procédure sommaire)', 10, 'j', 'CPCS', 'art. 278 al. 1 LP', { dom: 'lp', start: 'Connaissance du séquestre', note: 'Aucune suspension en procédure sommaire LP devant le juge, ni féries du CPC ni art. 63 LP (TF 5A_989/2025 du 27 mars 2026), sous réserve de l’avertissement de l’art. 145 al. 3 CPC.' }),
+  A('lp_seq_action', 'Validation du séquestre par une action en justice', 10, 'j', 'CPC', 'art. 279 al. 1 LP', { dom: 'lp', start: 'Réception du procès-verbal de séquestre', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP', note: 'Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_pours', 'Validation du séquestre par une réquisition de poursuite', 10, 'j', 'LPO', 'art. 279 al. 1 LP', { dom: 'lp', start: 'Réception du procès-verbal de séquestre', note: 'Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_ml', 'Validation du séquestre après opposition : requête de mainlevée', 10, 'j', 'CPCS', 'art. 279 al. 2 LP', { dom: 'lp', start: 'Notification au créancier du double du commandement de payer', note: 'Régime de suspension non tranché : l’outil n’en applique aucun (échéance la plus précoce). Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_ml_action', 'Validation du séquestre après opposition : action en reconnaissance de dette', 10, 'j', 'CPC', 'art. 279 al. 2 LP', { dom: 'lp', start: 'Notification au créancier du double du commandement de payer', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP', note: 'Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_rejet', 'Validation du séquestre après rejet de la mainlevée : action', 10, 'j', 'CPC', 'art. 279 al. 2 LP', { dom: 'lp', start: 'Notification de la décision rejetant la mainlevée', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP', note: 'Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_cont', 'Validation du séquestre sans opposition : réquisition de continuer la poursuite', 20, 'j', 'LPO', 'art. 279 al. 3 LP', { dom: 'lp', start: 'Notification au créancier du double du commandement de payer', note: 'Si l’opposition a été écartée, le délai court dès l’entrée en force de la décision. Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_seq_jug', 'Validation du séquestre après jugement : réquisition de poursuite', 10, 'j', 'LPO', 'art. 279 al. 4 LP', { dom: 'lp', start: 'Notification du jugement', note: 'Ces délais ne courent pas pendant la procédure d’opposition au séquestre ni pendant la procédure de recours (art. 279 al. 5 LP).' }),
+  A('lp_revend', 'Action en revendication ou en contestation de la revendication', 20, 'j', 'CPC', 'art. 107 al. 5 et 108 al. 2 LP', { dom: 'lp', start: 'Réception de l’avis de l’office', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP' }),
+  A('lp_coll_saisie', 'Action en contestation de l’état de collocation, saisie', 20, 'j', 'CPC', 'art. 148 al. 1 LP', { dom: 'lp', start: 'Réception de l’avis de dépôt', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP' }),
+  A('lp_coll_faill', 'Action en contestation de l’état de collocation, faillite', 20, 'j', 'CPC', 'art. 250 al. 1 LP', { dom: 'lp', start: 'Publication du dépôt de l’état de collocation', ferRefOverride: 'art. 145 al. 1 et 4 CPC ; art. 56 al. 2 LP' }),
+  A('ltf_lp', 'Recours au Tribunal fédéral contre une décision de l’autorité cantonale de surveillance', 10, 'j', 'LTF', 'art. 100 al. 2 let. a LTF', { dom: ['lp', 'ltf'], start: 'Notification de l’expédition complète' }),
+  // CPP
+  A('cpp_recours', 'Recours (art. 393 ss CPP)', 10, 'j', 'CPP', 'art. 396 al. 1 CPP', { dom: 'cpp', start: 'Notification de la décision' }),
+  A('cpp_annonce', 'Annonce d’appel', 10, 'j', 'CPP', 'art. 399 al. 1 CPP', { dom: 'cpp', start: 'Communication du jugement' }),
+  A('cpp_decl', 'Déclaration d’appel', 20, 'j', 'CPP', 'art. 399 al. 3 CPP', { dom: 'cpp', start: 'Notification du jugement motivé' }),
+  A('cpp_opp', 'Opposition à l’ordonnance pénale', 10, 'j', 'CPP', 'art. 354 al. 1 CPP', { dom: 'cpp', start: 'Notification de l’ordonnance pénale' }),
+  A('cpp_defaut', 'Demande de nouveau jugement après un jugement par défaut', 10, 'j', 'CPP', 'art. 368 al. 1 CPP', { dom: 'cpp', start: 'Notification du jugement par défaut' }),
+  A('cpp_restit', 'Demande de restitution de délai', 30, 'j', 'CPP', 'art. 94 al. 2 CPP', { dom: 'cpp', start: 'Fin de l’empêchement' }),
+  // LTF
+  A('ltf_recours', 'Recours en matière civile, pénale ou de droit public', 30, 'j', 'LTF', 'art. 100 al. 1 LTF', { dom: 'ltf', start: 'Notification de l’expédition complète' }),
+  A('ltf_rcs', 'Recours constitutionnel subsidiaire', 30, 'j', 'LTF', 'art. 117 et 100 al. 1 LTF', { dom: 'ltf', start: 'Notification de l’expédition complète' }),
+  A('ltf_mp', 'Décision sur l’effet suspensif ou des mesures provisionnelles', 30, 'j', 'LTFN', 'art. 100 al. 1 LTF', { dom: 'ltf', start: 'Notification de l’expédition complète', noFer: 'art. 46 al. 2 let. a LTF' }),
+  A('ltf_entraide', 'Entraide pénale internationale, assistance administrative fiscale', 10, 'j', 'LTFN', 'art. 100 al. 2 let. b LTF', { dom: 'ltf', start: 'Notification de l’expédition complète', noFer: 'art. 46 al. 2 let. d LTF' }),
+  A('ltf_enfant', 'Retour d’un enfant (conventions de La Haye et de Luxembourg)', 10, 'j', 'LTF', 'art. 100 al. 2 let. c LTF', { dom: 'ltf', start: 'Notification de l’expédition complète' }),
+  A('ltf_marches', 'Marchés publics, recours au Tribunal fédéral', 30, 'j', 'LTFN', 'art. 100 al. 1 LTF', { dom: ['ltf', 'mp'], start: 'Notification de l’expédition complète', noFer: 'art. 46 al. 2 let. e LTF' }),
+  A('ltf_brevets', 'Tribunal fédéral des brevets, licence (art. 40d LBI)', 10, 'j', 'LTF', 'art. 100 al. 2 let. d LTF', { dom: 'ltf', start: 'Notification de l’expédition complète' }),
+  A('ltf_votations', 'Votations fédérales, décision d’un gouvernement cantonal sur recours', 5, 'j', 'LTFN', 'art. 100 al. 3 let. b LTF', { dom: 'ltf', start: 'Notification de la décision', noFer: 'art. 46 al. 2 let. c LTF' }),
+  A('ltf_elections', 'Élections au Conseil national, décision d’un gouvernement cantonal sur recours', 3, 'j', 'LTFN', 'art. 100 al. 4 LTF', { dom: 'ltf', start: 'Notification de la décision', noFer: 'art. 46 al. 2 let. c LTF' }),
+  A('ltf_change', 'Poursuite pour effets de change, décision de l’autorité cantonale de surveillance', 5, 'j', 'LTFN', 'art. 100 al. 3 let. a LTF', { dom: 'ltf', start: 'Notification de l’expédition complète', noFer: 'art. 46 al. 2 let. b LTF' }),
+  // PA
+  A('pa_recours', 'Recours au Tribunal administratif fédéral ou à une autre autorité de recours', 30, 'j', 'PA', 'art. 50 al. 1 PA', { dom: 'pa', start: 'Notification de la décision' }),
+  A('pa_mp', 'Recours, procédure relative à l’effet suspensif ou à des mesures provisionnelles', 30, 'j', 'PAN', 'art. 50 al. 1 PA', { dom: 'pa', start: 'Notification de la décision', noFer: 'art. 22a al. 2 let. a PA' }),
+  A('pa_lmp', 'Marchés publics fédéraux (LMP), recours au Tribunal administratif fédéral', 20, 'j', 'PAN', 'art. 56 al. 1 LMP', { dom: ['pa', 'mp'], start: 'Notification de la décision', noFer: 'art. 56 al. 2 LMP' }),
+  // Assurances sociales
+  A('lpga_opp', 'Opposition auprès de l’assureur', 30, 'j', 'LPGA', 'art. 52 al. 1 LPGA', { dom: 'lpga', start: 'Notification de la décision' }),
+  A('lpga_recours', 'Recours au tribunal cantonal des assurances', 30, 'j', 'LPGA', 'art. 60 al. 1 LPGA', { dom: 'lpga', start: 'Notification de la décision sur opposition', note: 'Les art. 38 à 41 LPGA s’appliquent par analogie (art. 60 al. 2 LPGA). Réservez les règles spéciales de chaque assurance.' }),
+  // Administratif cantonal
+  A('vd_tc', 'Recours au Tribunal cantonal', 30, 'j', 'VD', 'art. 95 LPA-VD', { dom: 'adm', ct: 'VD', start: 'Notification de la décision' }),
+  A('vd_tc_mp', 'Recours au Tribunal cantonal, effet suspensif ou mesures provisionnelles', 30, 'j', 'VDN', 'art. 95 LPA-VD', { dom: 'adm', ct: 'VD', start: 'Notification de la décision', noFer: 'art. 96 al. 2 LPA-VD' }),
+  A('vd_admin', 'Recours administratif', 30, 'j', 'VDA', 'art. 77 al. 1 LPA-VD', { dom: 'adm', ct: 'VD', start: 'Notification de la décision' }),
+  A('vd_recl', 'Réclamation', 30, 'j', 'VDA', 'art. 68 al. 1 LPA-VD', { dom: 'adm', ct: 'VD', start: 'Notification de la décision' }),
+  A('vd_recl_inc', 'Réclamation contre une décision incidente', 10, 'j', 'VDA', 'art. 68 al. 2 LPA-VD', { dom: 'adm', ct: 'VD', start: 'Notification de la décision' }),
+  A('ge_final', 'Recours, décision finale ou en matière de compétence', 30, 'j', 'GE', 'art. 62 al. 1 let. a LPA-GE', { dom: 'adm', ct: 'GE', start: 'Notification de la décision' }),
+  A('ge_autre_dec', 'Recours, autre décision (notamment incidente)', 10, 'j', 'GE', 'art. 62 al. 1 let. b LPA-GE', { dom: 'adm', ct: 'GE', start: 'Notification de la décision' }),
+  A('ge_vot', 'Votations et élections', 6, 'j', 'GEN', 'art. 62 al. 1 let. c LPA-GE', { dom: 'adm', ct: 'GE', start: 'Notification de la décision', noFer: 'art. 63 al. 2 let. a LPA-GE' }),
+  A('fr_tc', 'Recours au Tribunal cantonal', 30, 'j', 'FR_TC', 'art. 79 al. 1 CPJA', { dom: 'adm', ct: 'FR', start: 'Notification de la décision' }),
+  A('fr_tc_inc', 'Recours au Tribunal cantonal contre une décision incidente', 10, 'j', 'FR_TC', 'art. 79 al. 2 CPJA', { dom: 'adm', ct: 'FR', start: 'Notification de la décision' }),
+  A('fr_ad', 'Recours à une autorité administrative (préfet, Direction, Conseil d’État)', 30, 'j', 'FR_AD', 'art. 79 al. 1 CPJA', { dom: 'adm', ct: 'FR', start: 'Notification de la décision' }),
+  A('fr_ad_inc', 'Recours à une autorité administrative contre une décision incidente', 10, 'j', 'FR_AD', 'art. 79 al. 2 CPJA', { dom: 'adm', ct: 'FR', start: 'Notification de la décision' }),
+  A('ne_recours', 'Recours (Tribunal cantonal ou autorité administrative de recours)', 30, 'j', 'NE', 'art. 109 LPA-NE', { dom: 'adm', ct: 'NE', start: 'Notification de la décision' }),
+  A('vs_tc', 'Recours au Tribunal cantonal', 30, 'j', 'VS_TC', 'art. 80 al. 1 let. b et 46 al. 1 LPJA-VS', { dom: 'adm', ct: 'VS', start: 'Notification de la décision' }),
+  A('vs_tc_inc', 'Recours au Tribunal cantonal contre une décision incidente', 10, 'j', 'VS_TC', 'art. 80 al. 1 let. b et 46 al. 1 LPJA-VS', { dom: 'adm', ct: 'VS', start: 'Notification de la décision' }),
+  A('vs_ad', 'Recours au Conseil d’État ou à une autre autorité administrative', 30, 'j', 'VS_AD', 'art. 46 al. 1 LPJA-VS', { dom: 'adm', ct: 'VS', start: 'Notification de la décision' }),
+  A('vs_ad_inc', 'Recours à une autorité administrative contre une décision incidente', 10, 'j', 'VS_AD', 'art. 46 al. 1 LPJA-VS', { dom: 'adm', ct: 'VS', start: 'Notification de la décision' }),
+  A('vs_recl', 'Réclamation', 30, 'j', 'VS_AD', 'art. 34a al. 2 LPJA-VS', { dom: 'adm', ct: 'VS', start: 'Notification de la décision' }),
+  A('ju_recours', 'Recours (juridiction administrative)', 30, 'j', 'JU', 'art. 121 al. 1 Cpa-JU', { dom: 'adm', ct: 'JU', start: 'Notification de la décision' }),
+  A('ju_inc', 'Recours contre une décision incidente ou d’exécution', 10, 'j', 'JU', 'art. 121 al. 1 Cpa-JU', { dom: 'adm', ct: 'JU', start: 'Notification de la décision' }),
+  A('ju_mp', 'Recours contre une décision sur l’effet suspensif ou des mesures provisionnelles', 10, 'j', 'JUN', 'art. 121 al. 1 Cpa-JU', { dom: 'adm', ct: 'JU', start: 'Notification de la décision', noFer: 'art. 44a al. 2 Cpa-JU', note: 'Délai de 10 jours si la décision est incidente ; pas de féries (art. 44a al. 2 Cpa-JU).' }),
+  // Marchés publics cantonaux
+  A('mp_vd', 'Recours contre une décision de l’adjudicateur (AIMP 2019, LMP-VD)', 20, 'j', 'VDN', 'art. 56 al. 1 AIMP (BLV 726.91) et art. 4 LMP-VD', { dom: 'mp', ct: 'VD', start: 'Notification de la décision (adjudication, exclusion, appel d’offres…)', noFer: 'art. 56 al. 2 AIMP' }),
+  A('mp_ge', 'Recours contre une décision de l’adjudicateur (AIMP 1994/2001, L-AIMP)', 10, 'j', 'GEN', 'art. 15 al. 2 AIMP (rsGE L 6 05) et art. 3 L-AIMP', { dom: 'mp', ct: 'GE', start: 'Notification de la décision', noFer: 'art. 15 al. 2bis AIMP et art. 63 al. 2 let. b LPA-GE', note: 'Droit en vigueur selon le recueil genevois au 13.10.2026 (AIMP 1994/2001). Le projet de loi d’adhésion à l’AIMP 2019 (PL 13620, art. 16) prévoit 20 jours sans féries : vérifiez sur silgeneve s’il est entré en vigueur et, le cas échéant, choisissez l’acte correspondant. Selon l’art. 64 AIMP 2019, les procédures d’adjudication lancées avant l’entrée en vigueur restent soumises à l’ancien droit.' }),
+  A('mp_ge19', 'Recours selon la loi d’adhésion à l’AIMP 2019 (PL 13620), une fois en vigueur', 20, 'j', 'GEN', 'art. 16 PL 13620 (non en vigueur au 13.10.2026)', { dom: 'mp', ct: 'GE', start: 'Notification de la décision', noFer: 'art. 16 PL 13620', note: 'À n’utiliser qu’après l’entrée en vigueur de la nouvelle loi genevoise et pour les procédures d’adjudication lancées depuis lors.' }),
+  A('mp_fr', 'Recours contre une décision de l’adjudicateur (AIMP 2019, LCMP)', 20, 'j', 'FR_N', 'art. 56 al. 1 AIMP (RSF 122.91.3) et art. 19 LCMP', { dom: 'mp', ct: 'FR', start: 'Notification de la décision', noFer: 'art. 56 al. 2 AIMP' }),
+  A('mp_ne', 'Recours contre une décision de l’adjudicateur (AIMP 2019)', 20, 'j', 'NEN', 'art. 56 al. 1 AIMP (RSN 601.710)', { dom: 'mp', ct: 'NE', start: 'Notification de la décision', noFer: 'art. 56 al. 2 AIMP' }),
+  A('mp_vs', 'Recours contre une décision de l’adjudicateur (AIMP 2019, LcAIMP)', 20, 'j', 'VS_AD', 'art. 56 al. 1 AIMP (RS/VS 726.1-1)', { dom: 'mp', ct: 'VS', start: 'Notification de la décision', noFer: 'art. 56 al. 2 AIMP' }),
+  A('mp_ju', 'Recours contre une décision de l’adjudicateur (AIMP 2019)', 20, 'j', 'JUN', 'art. 56 al. 1 AIMP (RSJU 174.01)', { dom: 'mp', ct: 'JU', start: 'Notification de la décision', noFer: 'art. 56 al. 2 AIMP' }),
+  A('mp_aimp19', 'Recours, canton ayant adhéré à l’AIMP 2019', 20, 'j', 'CANT_N', 'art. 56 al. 1 AIMP 2019', { dom: 'mp', ct: 'XX', start: 'Notification de la décision', noFer: 'art. 56 al. 2 AIMP 2019' }),
+  A('mp_aimp01', 'Recours, canton appliquant encore l’AIMP 1994/2001', 10, 'j', 'CANT_N', 'art. 15 al. 2 AIMP 1994/2001', { dom: 'mp', ct: 'XX', start: 'Notification de la décision', noFer: 'art. 15 al. 2bis AIMP 1994/2001' }),
+];
+ACTS.forEach(a => { if (!Array.isArray(a.dom)) a.dom = [a.dom]; });
+
+const DOMAINS = [['cpc', 'Procédure civile (CPC)'], ['lp', 'Poursuite et faillite (LP)'], ['cpp', 'Procédure pénale (CPP)'], ['ltf', 'Tribunal fédéral (LTF)'], ['pa', 'Administratif fédéral (PA)'], ['lpga', 'Assurances sociales (LPGA)'], ['adm', 'Administratif cantonal'], ['mp', 'Marchés publics']];
+const CANTON_HINT = {
+  cpc: ['Canton du siège du tribunal', 'Ses jours fériés reportent l’échéance (art. 142 al. 3 CPC).'],
+  lp: ['Canton de l’office ou du tribunal', 'Ses jours fériés reportent l’échéance (art. 31 LP et 142 al. 3 CPC).'],
+  cpp: ['Canton du domicile ou du siège de la partie ou de son conseil', 'Ses jours fériés reportent l’échéance (art. 90 al. 2 CPP).'],
+  ltf: ['Canton du domicile ou du siège de la partie ou de son mandataire', 'Ses jours fériés reportent l’échéance (art. 45 al. 2 LTF).'],
+  pa: ['Canton du domicile ou du siège de la partie ou de son mandataire', 'Ses jours fériés reportent l’échéance (art. 20 al. 3 PA).'],
+  lpga: ['Canton du domicile ou du siège de la partie ou de son mandataire', 'Ses jours fériés reportent l’échéance (art. 38 al. 3 LPGA).'],
+  adm: ['Canton', 'Sa loi de procédure administrative et ses jours fériés s’appliquent.'],
+  mp: ['Canton de l’adjudicateur', 'Pour un marché fédéral ou un recours au Tribunal fédéral, choisissez l’acte correspondant ; le canton sert alors aux jours fériés.'],
+};
+const HOLI_LABEL = { '1jan': '1er janvier', '2jan': '2 janvier', '1mars': '1er mars', '19mars': 'Saint-Joseph', 'vs': 'Vendredi saint', 'lp': 'lundi de Pâques', '1mai': '1er mai', 'asc': 'Ascension', 'ascv': 'vendredi de l’Ascension', 'lpe': 'lundi de Pentecôte', 'fdieu': 'Fête-Dieu', '23juin': '23 juin', '1aout': '1er août', '15aout': '15 août', 'jeune': 'lundi du Jeûne fédéral', 'jgen': 'Jeûne genevois', '1nov': '1er novembre', '8dec': '8 décembre', '24dec': '24 décembre', 'noel': 'Noël', '26dec': '26 décembre', '31dec': '31 décembre', '2janS': '2 janvier si le 1er janvier est un dimanche', '26decS': '26 décembre si Noël est un dimanche' };
+const CANTON_NAME = { VD: 'Vaud', GE: 'Genève', FR: 'Fribourg', NE: 'Neuchâtel', VS: 'Valais', JU: 'Jura', XX: 'autre canton' };
+const HOLI_SOURCE = { VD: 'art. 47 LEmp-VD', GE: 'art. 1 al. 1 LJF, rsGE J 1 45', FR: 'art. 121 al. 2 LJ', NE: 'loi sur le dimanche et les jours fériés, RSN 941.02', NE_ADM: 'art. 33 al. 3 LPA-NE et art. 11 du règlement des fonctionnaires', VS: 'fêtes de précepte (RS/VS 822.200) et 1er août', VS_ADM: 'art. 15 al. 2 LPJA-VS', JU: 'art. 3 de la loi sur les jours fériés officiels', XX: 'fériés communs à tous les cantons' };
+
+// ---------- État et rendu ----------
+let dom = store.get('dom', 'cpc');
+if (!DOMAINS.some(d => d[0] === dom)) dom = 'cpc';
+const actById = id => ACTS.find(a => a.id === id);
+const canton = () => $('#canton').value;
+const holiSet = () => { const c = canton(); if ((dom === 'adm' || dom === 'mp') && (c === 'NE' || c === 'VS')) return c + '_ADM'; return c; };
+
+function renderDomains() {
+  $('#domains').innerHTML = DOMAINS.map(([id, l]) => `<button type="button" data-dom="${id}" aria-pressed="${id === dom}">${l}</button>`).join('');
+  document.querySelectorAll('[data-dom]').forEach(b => b.onclick = () => { dom = b.dataset.dom; store.set('dom', dom); renderDomains(); renderCanton(); renderActs(); });
+}
+function renderCanton() {
+  const h = CANTON_HINT[dom];
+  $('#cantonLabel').textContent = h[0];
+  $('#cantonHint').textContent = `${h[0]}. ${h[1]}`;
+}
+function renderActs() {
+  const sel = $('#act'), prev = sel.value;
+  const list = ACTS.filter(a => a.dom.includes(dom) && (!a.ct || a.ct === canton())).map((a, i) => [a, i]).sort((x, y) => (x[0].ct ? 0 : 1) - (y[0].ct ? 0 : 1) || x[1] - y[1]).map(x => x[0]);
+  sel.innerHTML = `<option value="">Aucun : je saisis le délai moi-même</option>` + list.map(a => `<option value="${a.id}">${a.label} (${a.n} ${a.unit === 'm' ? 'mois' : 'jours'})</option>`).join('');
+  sel.value = list.some(a => a.id === prev) ? prev : '';
+  renderRegimes();
+  update();
+}
+function renderRegimes() {
+  const opts = REG_OPTS[dom](canton());
+  const sel = $('#reg'), prev = sel.value;
+  sel.innerHTML = opts.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+  if (opts.some(o => o[0] === prev)) sel.value = prev;
+}
+
+const plural = (n, s) => `${n} ${s}${n > 1 ? 's' : ''}`;
+const unitTxt = u => u === 'm' ? 'mois' : 'jours';
+function holidayList() {
+  const set = holiSet();
+  return (D.HOLI_SETS[set] || D.HOLI_SETS.XX).map(k => HOLI_LABEL[k]).join(', ');
+}
+
+function update() {
+  const a = actById($('#act').value) || null;
+  const nRaw = $('#n').value.trim();
+  let n = parseInt(nRaw, 10); const typed = Number.isFinite(n) && n >= 1;
+  let unit = $('#unit').value;
+  const regKey0 = a ? a.reg : $('#reg').value;
+  $('#noticeBox').hidden = regKey0 !== 'CPCS';
+  const noNotice = regKey0 === 'CPCS' && !$('#notice145').checked;
+  const regKey = noNotice ? 'CPC' : regKey0;
+  const reg = noNotice ? Object.assign({}, R.CPC, { ferRef: 'art. 145 al. 1 et 3 CPC ; ATF 139 III 78' }) : R[regKey];
+  const mode = document.querySelector('input[name=mode]:checked').value;
+  const ev = D.parseISO($('#ev').value), avis = D.parseISO($('#avis').value);
+  store.set('canton', canton());
+  $('#avisBox').hidden = mode !== 'fiction';
+  $('#normalBox').hidden = mode === 'fiction';
+  $('#ev').disabled = mode === 'fiction';
+  $('#evLabel').textContent = a && a.start ? a.start : 'Date de la communication ou de l’événement';
+  $('#regBox').hidden = !!a;
+  $('#actNote').textContent = a && a.note ? a.note : '';
+
+  // Délai retenu
+  let usedLegal = false;
+  if (a && !typed) { n = a.n; unit = a.unit; usedLegal = true; }
+  const noFer = (a && a.noFer) || reg.noFerRef;
+  const ferTxt = reg.feries === 'LP' ? 'art. 63 LP en cas d’échéance pendant les féries de poursuite' : reg.feries ? `féries : oui (${(a && a.ferRefOverride) || reg.ferRef})` : `féries : non${noFer ? ' (' + noFer + ')' : ''}`;
+  if (a) {
+    const differs = typed && (n !== a.n || unit !== a.unit);
+    $('#legal').innerHTML = `<span>Délai légal : <b>${a.n} ${unitTxt(a.unit)}</b>, ${a.ref} ; ${ferTxt}.${usedLegal ? ' Appliqué automatiquement, le champ « Délai » étant vide.' : ''}</span>${differs ? `<button type="button" class="linkish" id="restore">Reprendre ${a.n} ${unitTxt(a.unit)}</button>` : ''}`;
+    const rb = $('#restore'); if (rb) rb.onclick = () => { $('#n').value = ''; $('#unit').value = a.unit; update(); };
+  } else {
+    $('#legal').innerHTML = `<span>Sans acte choisi, le délai saisi est calculé tel quel, sans contrôle ; ${ferTxt}.</span>`;
+  }
+
+  const alerts = [];
+  if (a && typed) {
+    if (n !== a.n || unit !== a.unit) {
+      alerts.push({ lvl: 'warn', html: `<b>Attention, à vérifier.</b> Pour « ${a.label} », le délai légal est de <b>${a.n} ${unitTxt(a.unit)}</b> (${a.ref}). Vous avez saisi ${n} ${unitTxt(unit)}. Le calcul utilise votre valeur. <button type="button" class="linkish" data-fix>Reprendre ${a.n} ${unitTxt(a.unit)}</button>` });
+    } else alerts.push({ lvl: 'ok', html: `<b>Délai conforme.</b> Le délai saisi correspond au délai légal (${a.ref}).` });
+  }
+  if (a && !typed) alerts.push({ lvl: 'info', html: `Délai légal appliqué : ${a.n} ${unitTxt(a.unit)} (${a.ref}).` });
+  if (!a && typed) alerts.push({ lvl: 'info', html: 'Aucun acte choisi : le délai n’est pas contrôlé. Choisissez l’acte pour le vérifier.' });
+  if (reg.daysOnly && unit === 'm' && reg.feries) alerts.push({ lvl: 'info', html: `La suspension ne vise que les délais fixés en jours (${reg.ferRef}) : elle n’est pas appliquée à un délai en mois.` });
+  if (regKey === 'CPP' && unit === 'm') alerts.push({ lvl: 'info', html: 'Le CPP règle la computation des délais fixés en jours (art. 90 CPP). Vérifiez la base légale d’un délai en mois.' });
+  if (noNotice) alerts.push({ lvl: 'info', html: 'Sans l’avertissement prévu à l’art. 145 al. 3 CPC, les délais sont suspendus (ATF 139 III 78) : le calcul applique la suspension.' });
+  if ($('#normal').checked && mode !== 'fiction' && !reg.normalPostRule && reg.postNote) alerts.push({ lvl: 'info', html: reg.postNote });
+  if (canton() === 'XX') alerts.push({ lvl: 'warn', html: 'Autre canton : seuls le 1er janvier, l’Ascension, le 1er août et Noël sont retenus comme jours fériés. Vérifiez les jours fériés du canton concerné.' });
+
+  const startDate = mode === 'fiction' ? avis : ev;
+  if (!a && !typed) return show(null, alerts, a, reg, 'Choisissez l’acte ou indiquez le délai.');
+  if (startDate === null) return show(null, alerts, a, reg, mode === 'fiction' ? 'Indiquez la date du premier avis de retrait.' : 'Indiquez la date de la communication.');
+
+  const res = D.compute({
+    holi: holiSet(), event: ev, avis, mode, normalPost: $('#normal').checked && mode !== 'fiction',
+    unit, n, feries: reg.feries, suspendMonths: !!reg.suspendMonths, lp63: !!reg.lp63,
+    startRef: reg.startRef, monthRef: reg.monthRef, ferRef: (a && a.ferRefOverride) || reg.ferRef, noticeRef: reg.noticeRef, shiftRef: reg.shiftRef,
+    normalPostRule: reg.normalPostRule, fictionRef: reg.fictionRef, noFerRef: noFer,
+  });
+  res.notes.forEach(x => alerts.push({ lvl: x.lvl, html: x.t }));
+  const t = new Date(), today = D.dn(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  if (res.ev > today) alerts.push({ lvl: 'info', html: 'La date de communication est dans le futur : calcul prévisionnel.' });
+  show(res, alerts, a, reg, null, today, n, unit);
+}
+
+let lastSummary = '';
+function show(res, alerts, a, reg, emptyMsg, today, n, unit) {
+  const dEl = $('#rDate'), chip = $('#rChip');
+  let html = alerts.map(x => `<div class="alert ${x.lvl}">${x.html}</div>`).join('');
+  if (res && res.end - today < 0) html = `<div class="alert bad"><b>Le délai paraît échu.</b> Vérifiez la date de notification et une éventuelle restitution de délai.</div>` + html;
+  $('#rAlerts').innerHTML = html;
+  const fix = document.querySelector('[data-fix]'); if (fix) fix.onclick = () => { $('#n').value = ''; if (a) $('#unit').value = a.unit; update(); };
+  if (!res) {
+    dEl.className = 'date empty'; dEl.textContent = emptyMsg || 'Complétez le formulaire.'; chip.innerHTML = '';
+    $('#rTl').hidden = true; $('#rDetails').hidden = true; lastSummary = ''; return;
+  }
+  dEl.className = 'date'; dEl.textContent = D.fmtLong(res.end);
+  const left = res.end - today;
+  chip.innerHTML = left < 0 ? `<span class="chip late">Échu depuis ${plural(-left, 'jour')}</span>`
+    : left === 0 ? `<span class="chip late">Échéance aujourd’hui</span>`
+    : `<span class="chip ${left <= 5 ? 'soon' : 'ok'}">Il reste ${plural(left, 'jour')}</span>`;
+
+  const total = res.end - res.start + 1;
+  if (total > 0 && total <= 400) {
+    const types = [];
+    for (let d = res.start; d <= res.end; d++) {
+      let ty = d > res.raw ? 'x' : 'c';
+      if (ty === 'c') for (const s of res.suspended) if (d >= s.from && d <= s.to) ty = 's';
+      types.push(ty);
+    }
+    const segs = []; types.forEach(ty => { const l = segs[segs.length - 1]; if (l && l.t === ty) l.n++; else segs.push({ t: ty, n: 1 }); });
+    $('#rBar').innerHTML = segs.map(s => `<span class="${s.t}" style="flex:${s.n}" title="${s.n} jour${s.n > 1 ? 's' : ''}"></span>`).join('');
+    $('#tlA').textContent = `Début ${D.fmtShort(res.start)}`; $('#tlB').textContent = `Fin ${D.fmtShort(res.end)}`;
+    $('#rTl').hidden = false;
+  } else $('#rTl').hidden = true;
+
+  $('#rSteps').innerHTML = res.steps.map(s => `<li>${s.t}${s.ref ? ` <span class="ref">(${s.ref})</span>` : ''}</li>`).join('');
+  const rules = (reg.rules || []).slice();
+  if (a && a.note) rules.unshift(a.note);
+  rules.push(`Jours fériés retenus (${CANTON_NAME[canton()]}, ${HOLI_SOURCE[holiSet()]}) : ${holidayList()}, ainsi que les samedis et dimanches.`);
+  if (canton() === 'GE') rules.push('Lorsque le 1er janvier, le 1er août ou Noël tombe un dimanche, le lendemain est férié pour les entreprises non soumises à la loi sur le travail (art. 1 al. 2 LJF) ; l’outil ne retient pas ce jour, par prudence.');
+  $('#rRules').innerHTML = rules.map(r => `<li>${r}</li>`).join('');
+  $('#rDetails').hidden = false;
+
+  lastSummary = [
+    'id est avocats, calcul des délais (indicatif)',
+    `Procédure : ${DOMAINS.find(d => d[0] === dom)[1]}, ${CANTON_NAME[canton()]}`,
+    a ? `Acte : ${a.label} ; délai légal ${a.n} ${unitTxt(a.unit)} (${a.ref})` : 'Acte : non précisé',
+    `Délai retenu : ${n} ${unitTxt(unit)}`,
+    `Communication : ${D.fmtShort(res.ev)}`,
+    `Dernier jour : ${D.fmtLong(res.end)}`,
+    ...res.steps.map(s => `- ${s.t}${s.ref ? ' (' + s.ref + ')' : ''}`),
+    `Calcul du ${D.fmtShort(today)}, à vérifier.`,
+  ].join('\n');
+}
+
+// ---------- Événements ----------
+$('#n').addEventListener('input', update);
+['#unit', '#ev', '#avis', '#normal', '#reg', '#notice145'].forEach(s => { $(s).addEventListener('input', update); $(s).addEventListener('change', update); });
+document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', update));
+$('#act').addEventListener('change', () => { const a = actById($('#act').value); if (a && !$('#n').value) $('#unit').value = a.unit; update(); });
+$('#canton').addEventListener('change', () => { renderActs(); });
+$('#copy').addEventListener('click', async () => {
+  const b = $('#copy');
+  if (!lastSummary) { b.textContent = 'Rien à copier'; setTimeout(() => b.textContent = 'Copier le résumé', 1500); return; }
+  try { await navigator.clipboard.writeText(lastSummary); b.textContent = 'Résumé copié'; }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = lastSummary; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); b.textContent = 'Résumé copié'; } catch (_) { b.textContent = 'Copie impossible'; }
+    ta.remove();
+  }
+  setTimeout(() => b.textContent = 'Copier le résumé', 1800);
+});
+$('#print').addEventListener('click', () => window.print());
+$('#reset').addEventListener('click', () => {
+  $('#ev').value = ''; $('#avis').value = ''; $('#n').value = ''; $('#normal').checked = false;
+  document.querySelector('input[name=mode][value=recu]').checked = true; $('#act').value = ''; update();
+});
+
+// ---------- Démarrage ----------
+$('#canton').value = store.get('canton', 'VD');
+renderDomains(); renderCanton(); renderActs();
+})();
+</script>
+</body>
+</html>
