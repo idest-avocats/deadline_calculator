@@ -49,12 +49,7 @@ Le détail des actes, délais, règles et jurisprudences figure dans [SOURCES.md
 
 ## Règle de prudence
 
-Lorsqu’il existe un doute sur le caractère férié d’un jour ou sur l’application des féries, l’outil retient la solution qui donne l’échéance la plus précoce. C’est notamment le cas :
-
-- pour le Valais hors procédure administrative et pour l’option « Autre canton » (jours fériés) ;
-- à Genève, pour le lendemain d’un jour férié tombant un dimanche (art. 1 al. 2 LJF) ;
-- à Vaud, pour la réclamation et le recours administratif (féries de l’art. 96 LPA-VD non appliquées) ;
-- pour la requête de mainlevée en validation d’un séquestre (art. 279 al. 2 LP).
+Lorsqu’il existe un doute sur le caractère férié d’un jour ou sur l’application des féries, l’outil retient la solution qui donne l’échéance la plus précoce. C.
 
 ## Limites connues
 
@@ -64,26 +59,6 @@ Lorsqu’il existe un doute sur le caractère férié d’un jour ou sur l’app
 - Les congés compensatoires décidés par le Conseil d’État neuchâtelois ne sont pas pris en compte.
 - Genève, marchés publics : l’outil propose 10 jours (droit en vigueur au 13 octobre 2026) et, séparément, 20 jours selon le projet de loi PL 13620, à n’utiliser qu’après son entrée en vigueur.
 - Envoi postal normal : la loi fédérale sur les notifications d’actes le week-end et les jours fériés (FF 2025 2891) étendra la règle de l’art. 142 al. 1bis CPC à la PA, à la LTF et à la LPGA. L’outil devra être adapté à son entrée en vigueur.
-
-## Mise en ligne
-
-L’outil tient dans un seul fichier, `index.html`, sans dépendance externe. Pour le publier avec GitHub Pages :
-
-1. Déposer les fichiers du dépôt sur la branche `main`.
-2. Dans *Settings > Pages*, choisir *Deploy from a branch*, la branche `main` et le dossier `/ (root)`, puis enregistrer.
-3. L’outil est disponible à l’adresse `https://<compte>.github.io/<dépôt>/`.
-
-## Mise à jour du droit
-
-À chaque modification des lois concernées, et au moins une fois par an :
-
-1. vérifier les dispositions listées dans [SOURCES.md](SOURCES.md) sur Fedlex et les recueils cantonaux ;
-2. adapter les délais ou règles dans `index.html` (tableaux `ACTS` et `R`, jours fériés dans `HOLI_SETS`) ;
-3. mettre à jour les dates de consultation dans `SOURCES.md` et dans le pied de page de l’outil ;
-4. refaire les cas de [CAS-DE-TEST.md](CAS-DE-TEST.md) ;
-5. consigner la modification dans [CHANGELOG.md](CHANGELOG.md).
-
-Points à surveiller : entrée en vigueur de la loi FF 2025 2891 (notifications le week-end), de la loi genevoise issue du PL 13620 (AIMP 2019) et de la consolidation de la PA et du CPP annoncée au 1er janvier 2027.
 
 ## Protection des données
 
